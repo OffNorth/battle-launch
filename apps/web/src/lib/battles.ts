@@ -112,3 +112,58 @@ function toSummary(row: Row): BattleSummary {
     sides: { A: pick("A"), B: pick("B") },
   };
 }
+
+export type BattleDetail = BattleSummary & {
+  mode: Enums<"battle_mode">;
+  createdBy: string;
+  lobbyMinutes: number;
+  scoreMode: Enums<"score_mode">;
+  initialBuyLamports: number;
+  watchersCount: number;
+  cancelReason: string | null;
+  sideDetails: {
+    side: Enums<"side_letter">;
+    name: string;
+    ticker: string;
+    description: string | null;
+    imageUrl: string | null;
+    mint: string | null;
+    creatorId: string | null;
+  }[];
+};
+
+/** Une battle publique avec ses camps, ou null (inexistante ou brouillon d'un autre). */
+export async function getBattle(id: string): Promise<BattleDetail | null> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("battles")
+    .select(
+      `${SELECT}, mode, created_by, lobby_minutes, score_mode, initial_buy_lamports, watchers_count, cancel_reason,
+       details:battle_sides ( side, name, ticker, description, image_url, mint, creator_id )`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(`lecture de la battle impossible (${error.code})`);
+  if (!data) return null;
+  return {
+    ...toSummary(data as unknown as Row),
+    mode: data.mode,
+    createdBy: data.created_by,
+    lobbyMinutes: data.lobby_minutes,
+    scoreMode: data.score_mode,
+    initialBuyLamports: data.initial_buy_lamports,
+    watchersCount: data.watchers_count,
+    cancelReason: data.cancel_reason,
+    sideDetails: data.details
+      .map((d) => ({
+        side: d.side,
+        name: d.name,
+        ticker: d.ticker,
+        description: d.description,
+        imageUrl: d.image_url,
+        mint: d.mint,
+        creatorId: d.creator_id,
+      }))
+      .sort((a, b) => (a.side < b.side ? -1 : 1)),
+  };
+}

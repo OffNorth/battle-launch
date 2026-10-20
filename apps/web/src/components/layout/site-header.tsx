@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { SignInButton } from "@/components/auth/sign-in-button";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries/en";
-import { LangSwitcher } from "./lang-switcher";
+import { LangSwitcher, LangSwitcherStatic } from "./lang-switcher";
 
 export function SiteHeader({
   dict,
@@ -29,6 +30,9 @@ export function SiteHeader({
             <Link href={`/${locale}`} className="hover:text-foreground">
               {dict.nav.battles}
             </Link>
+            <Link href={`/${locale}/create`} className="hover:text-foreground">
+              {dict.nav.create}
+            </Link>
             <Link href={`/${locale}/docs`} className="hover:text-foreground">
               {dict.nav.docs}
             </Link>
@@ -36,7 +40,9 @@ export function SiteHeader({
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <div className="hidden md:block">
-            <LangSwitcher current={locale} label={dict.nav.language} />
+            <Suspense fallback={<LangSwitcherStatic current={locale} label={dict.nav.language} />}>
+              <LangSwitcher current={locale} label={dict.nav.language} />
+            </Suspense>
           </div>
           <SignInButton labels={dict.auth} />
         </div>
@@ -44,9 +50,12 @@ export function SiteHeader({
       <div className="flex items-center justify-between gap-4 border-t border-border/40 px-4 py-2 text-sm text-muted-foreground md:hidden">
         <nav className="flex gap-4">
           <Link href={`/${locale}`}>{dict.nav.battles}</Link>
+          <Link href={`/${locale}/create`}>{dict.nav.create}</Link>
           <Link href={`/${locale}/docs`}>{dict.nav.docs}</Link>
         </nav>
-        <LangSwitcher current={locale} label={dict.nav.language} />
+        <Suspense fallback={<LangSwitcherStatic current={locale} label={dict.nav.language} />}>
+          <LangSwitcher current={locale} label={dict.nav.language} />
+        </Suspense>
       </div>
     </header>
   );

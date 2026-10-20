@@ -4,3 +4,5 @@ export * from "./battle/types";
 export * from "./battle/anti-cheat";
 export * from "./battle/score";
 export * from "./battle/snapshot";
+export * from "./moderation";
+export * from "./battle/create";

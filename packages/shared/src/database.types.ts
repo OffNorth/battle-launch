@@ -150,6 +150,39 @@ export type Database = {
           },
         ]
       }
+      battle_watchers: {
+        Row: {
+          battle_id: string
+          created_at: string
+          profile_id: string
+        }
+        Insert: {
+          battle_id: string
+          created_at?: string
+          profile_id: string
+        }
+        Update: {
+          battle_id?: string
+          created_at?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battle_watchers_battle_id_fkey"
+            columns: ["battle_id"]
+            isOneToOne: false
+            referencedRelation: "battles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battle_watchers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       battles: {
         Row: {
           anti_cheat_rules: Json
@@ -174,6 +207,7 @@ export type Database = {
           started_at: string | null
           status: Database["public"]["Enums"]["battle_status"]
           theme: string
+          watchers_count: number
           winner_side: Database["public"]["Enums"]["side_letter"] | null
         }
         Insert: {
@@ -199,6 +233,7 @@ export type Database = {
           started_at?: string | null
           status?: Database["public"]["Enums"]["battle_status"]
           theme: string
+          watchers_count?: number
           winner_side?: Database["public"]["Enums"]["side_letter"] | null
         }
         Update: {
@@ -223,6 +258,7 @@ export type Database = {
           started_at?: string | null
           status?: Database["public"]["Enums"]["battle_status"]
           theme?: string
+          watchers_count?: number
           winner_side?: Database["public"]["Enums"]["side_letter"] | null
         }
         Relationships: [
@@ -414,6 +450,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rate_limits: {
+        Row: {
+          hits: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          hits: number
+          key: string
+          window_start: string
+        }
+        Update: {
+          hits?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
       }
       reports: {
         Row: {
@@ -643,12 +697,51 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      accept_duel: {
+        Args: {
+          p_battle: string
+          p_challenger: string
+          p_launch_at: string
+          p_lobby_opens_at: string
+          p_side: Json
+        }
+        Returns: string
+      }
+      create_battle: {
+        Args: {
+          p_creator: string
+          p_duration_minutes: number
+          p_initial_buy_lamports: number
+          p_launch_at: string
+          p_lobby_minutes: number
+          p_lobby_opens_at: string
+          p_mode: Database["public"]["Enums"]["battle_mode"]
+          p_score_mode: Database["public"]["Enums"]["score_mode"]
+          p_score_weights: Json
+          p_sides: Json
+          p_status: Database["public"]["Enums"]["battle_status"]
+          p_theme: string
+        }
+        Returns: string
+      }
+      find_similar_sides: {
+        Args: { p_min_similarity?: number; p_names: string[] }
+        Returns: {
+          battle_id: string
+          name: string
+          similarity: number
+        }[]
+      }
+      hit_rate_limit: {
+        Args: { p_key: string; p_limit: number; p_window_seconds: number }
+        Returns: boolean
+      }
     }
     Enums: {
       battle_mode: "creator" | "open_duel" | "auto_ai"
       battle_status:
         | "draft"
+        | "open"
         | "lobby"
         | "launching"
         | "live"
@@ -789,6 +882,7 @@ export const Constants = {
       battle_mode: ["creator", "open_duel", "auto_ai"],
       battle_status: [
         "draft",
+        "open",
         "lobby",
         "launching",
         "live",

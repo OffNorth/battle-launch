@@ -143,7 +143,12 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
       `/en` (`src/i18n`, redirection selon la langue du navigateur dans `proxy.ts`), accueil (en direct / bientôt / résultats
       lus dans Supabase), `/docs` (risques, déroulement, formule, anti-triche, vérification, FAQ). Vérifié en local, mobile
       375 px sans défilement horizontal, console sans erreur
-- [ ] Étape 4 : /create (4 étapes, 3 modes, filtre de contenu, Auto-IA), lobby
+- [x] Étape 4 (code) : `/create` en 4 étapes et 3 modes, filtre de contenu (`packages/shared/src/moderation.ts`), Auto-IA
+      (`/api/ai/concepts`, modèle `claude-opus-5-5`, effort bas, sortie structurée, repli serveur `fallbacks: "default"`),
+      doublons par trigrammes, page `/battle/[id]` avec lobby (pré-inscription, relever un duel, annuler), mise à jour en
+      direct (Realtime). Migration `20261020215205_creation_lobby` (statut `open`, `battle_watchers`, `rate_limits`, fonctions
+      `create_battle` / `accept_duel` / `hit_rate_limit` / `find_similar_sides`, réservées au serveur)
+- [ ] Étape 4 (essai réel) : créer une battle connecté avec un wallet — attend `SUPABASE_SECRET_KEY` en local et la connexion Web3
 - [ ] Étape 5 : lancement devnet (pré-signature, durable nonce, envoi par le worker)
 - [ ] Étape 6 : indexeur + stats temps réel + page /battle/[id]
 - [ ] Étape 7 : clôture, snapshot, vérification, récompenses, Hall of Fame, leaderboard, profils, notifications
@@ -151,6 +156,15 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
 - [ ] Étape 9 : E2E battle complète, seed devnet, README final, checklist de mise en production
 
 ## 10. Pièges connus
+
+- **Écritures** : toujours par une route `/api/...` (`lib/api.ts` : `requireProfile` d'abord, puis `rateLimit`, puis
+  `parseBody` avec le schéma Zod partagé, puis filtre de contenu). Les fonctions SQL appelées sont réservées à `service_role`.
+- **RPC et nul** : passer `null` explicitement à une fonction SQL (une clé absente empêche PostgREST de trouver la fonction).
+- **Realtime** : `postgres_changes` filtré par battle suffit au début ; au-delà d'environ 3 000 spectateurs simultanés sur
+  la même battle, la doc Supabase conseille Broadcast.
+- **Pages dynamiques** : tout composant client qui lit l'adresse (`usePathname`) doit être dans un `<Suspense>`, sinon le
+  build échoue sur les pages comme `/battle/[id]`.
+- **Shell (outil Bash)** : les longs scripts heredoc avec apostrophes échouent parfois ; écrire les fichiers avec l'outil Write.
 
 - **Textes du site** : `src/i18n/dictionaries/en.ts` (référence) et `fr.ts` (mêmes clés, vérifié par TypeScript). La langue
   vient du segment `[lang]` via `next/root-params` (`getDictionary()`, `getLocale()`).
