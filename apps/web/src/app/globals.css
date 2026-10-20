@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+/* Thème « arène » : sombre par défaut, néons fuchsia (camp A) et cyan (camp B). */
+:root {
+  --background: #07060d;
+  --foreground: #ededf5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}

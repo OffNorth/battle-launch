@@ -1,0 +1,26 @@
+# Dépendances et sorties de build
+node_modules/
+.next/
+dist/
+out/
+.turbo/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Tests E2E
+playwright-report/
+test-results/
+blob-report/
+
+# Secrets : jamais dans Git (seul .env.example, sans valeur, est versionné)
+.env
+.env.*
+!.env.example
+
+# Outils locaux
+.vercel/
+supabase/.temp/
+supabase/.branches/
+.DS_Store
+Thumbs.db
