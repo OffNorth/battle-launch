@@ -61,9 +61,9 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
 | Plateforme | Ressource                                                                                                                                       |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Supabase   | projet `battle-launch`, id `gqeiqlejxqotldubsxic`, région eu-west-3 (Paris), offre gratuite (0 $/mois)                                          |
-| Vercel     | compte personnel (Hobby). Projet à créer quand le dépôt GitHub existe                                                                           |
+| Vercel     | compte personnel (Hobby). Projet à créer dès que l'app GitHub de Vercel a accès au dépôt (sinon `repo_not_found`)                               |
 | Railway    | workspace « zigxbt's Projects » (`293170f3-…`). Projet pas encore créé : panne Railway le 20/10/2026 (« Deploys have been paused temporarily ») |
-| GitHub     | dépôt privé prévu : `OffNorth/battle-launch` (le premier push attend l'accord de l'utilisateur)                                                 |
+| GitHub     | dépôt privé `OffNorth/battle-launch` (push accepté le 20/10/2026), branche `main`                                                               |
 
 ## 6. Règles de sécurité (obligatoires)
 
@@ -116,8 +116,12 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
 ## 9. Avancement
 
 - [x] Étape 0 : dossier, git, monorepo, CLAUDE.md, README, .env.example, projet Supabase — lint/typecheck/test/build OK
-- [ ] Étape 0 (suite) : dépôt GitHub + projet Vercel + preview ; projet Railway (worker + Redis) dès la fin de la panne
-- [ ] Étape 1 : schéma Supabase + RLS + advisors + types ; connexion par wallet
+- [x] Étape 0 (suite) : dépôt GitHub poussé
+- [ ] Étape 0 (reste) : projet Vercel + preview (attend l'app GitHub de Vercel) ; projet Railway (attend la fin de la panne)
+- [x] Étape 1 : schéma (migration `20261020174442_schema_initial`), RLS testée, advisors sécurité sans avertissement, types
+      générés (`packages/shared/src/database.types.ts`), bouton de connexion par wallet, `/api/me`
+- [ ] Étape 1 (reste) : activer le fournisseur « Web3 Wallet / Solana » dans Supabase (tableau de bord, par l'utilisateur) et
+      essayer une vraie connexion avec Phantom en devnet
 - [ ] Étape 2 : `packages/shared` score, anti-triche, snapshot + tests
 - [ ] Étape 3 : site de base (thème arène, wallets, accueil, /docs, avertissement, FR/EN)
 - [ ] Étape 4 : /create (4 étapes, 3 modes, filtre de contenu, Auto-IA), lobby
@@ -128,6 +132,15 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
 - [ ] Étape 9 : E2E battle complète, seed devnet, README final, checklist de mise en production
 
 ## 10. Pièges connus
+
+- **Connexion par wallet** : `signInWithWeb3` de Supabase reçoit `{ publicKey, signMessage }` (pas l'objet `useWallet()`
+  entier : les types de `signIn` divergent entre wallet-adapter et Supabase). Le profil est créé par un trigger sur
+  `auth.identities` (fournisseur `web3`) ; l'adresse vient d'`identity_data.address` ou de la fin de `provider_id`
+  (`web3:solana:<adresse>`). Vérifié avec une identité factice dans une transaction annulée, **pas encore sur une vraie connexion**.
+- **Ne jamais lire `user_metadata` dans une policy** : l'utilisateur peut le modifier. Le wallet fait foi via `profiles`.
+- **Cache Components** : lire les cookies (session) seulement derrière un `<Suspense>` ou dans une route API ; les variables
+  publiques sont validées à la première utilisation, pas à l'import (le build passe sans elles).
+- Les avis « unused index » (INFO) de `get_advisors` performance sont normaux tant que la base est vide.
 
 - `npm audit` signale `braces` (dépendance de `eslint-config-next`, outil de dev seulement, pas dans le site livré).
 - ESLint 9 est marqué « plus maintenu ». On le garde tant que la compatibilité des plugins de `eslint-config-next` avec
