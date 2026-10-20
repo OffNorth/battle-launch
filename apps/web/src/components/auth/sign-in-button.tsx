@@ -1,19 +1,35 @@
 "use client";
 
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { BaseWalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-/** Texte affiché par le wallet au moment de signer (une seule ligne, aucune transaction). */
-const STATEMENT = "Sign in to BATTLE LAUNCH. This is a signature only: no transaction, no fee.";
+export type SignInLabels = {
+  /** Textes du bouton de choix du wallet (états de wallet-adapter). */
+  wallet: {
+    "no-wallet": string;
+    connecting: string;
+    "has-wallet": string;
+    "copy-address": string;
+    copied: string;
+    "change-wallet": string;
+    disconnect: string;
+  };
+  signIn: string;
+  signOut: string;
+  checkWallet: string;
+  failed: string;
+  /** Texte affiché par le wallet au moment de signer (une seule ligne, aucune transaction). */
+  statement: string;
+};
 
 function shortWallet(wallet: string) {
   return `${wallet.slice(0, 4)}…${wallet.slice(-4)}`;
 }
 
 /** Connexion par signature de message : wallet connecté -> signature -> session Supabase. */
-export function SignInButton() {
+export function SignInButton({ labels }: { labels: SignInLabels }) {
   const wallet = useWallet();
   // Client créé à la première utilisation dans le navigateur (jamais pendant le rendu serveur).
   const clientRef = useRef<ReturnType<typeof createClient> | null>(null);
@@ -40,7 +56,7 @@ export function SignInButton() {
     if (sessionWallet && connected && connected !== sessionWallet) void supabase().auth.signOut();
   }, [connected, sessionWallet]);
 
-  if (!wallet.connected) return <WalletMultiButton />;
+  if (!wallet.connected) return <BaseWalletMultiButton labels={labels.wallet} />;
 
   if (sessionWallet) {
     return (
@@ -51,7 +67,7 @@ export function SignInButton() {
           onClick={() => void supabase().auth.signOut()}
           className="rounded-md border border-zinc-700 px-3 py-1.5 hover:border-zinc-500"
         >
-          Sign out
+          {labels.signOut}
         </button>
       </div>
     );
@@ -62,12 +78,12 @@ export function SignInButton() {
     setError(null);
     const { error: err } = await supabase().auth.signInWithWeb3({
       chain: "solana",
-      statement: STATEMENT,
+      statement: labels.statement,
       // Seulement la clé publique et la signature de message : marche avec tous les wallets,
       // et évite l'écart de types entre wallet-adapter et Supabase sur signIn.
       wallet: { publicKey: wallet.publicKey, signMessage: wallet.signMessage },
     });
-    if (err) setError("Sign-in failed or was cancelled.");
+    if (err) setError(labels.failed);
     setBusy(false);
   };
 
@@ -79,7 +95,7 @@ export function SignInButton() {
         disabled={busy}
         className="rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-semibold text-white hover:bg-fuchsia-400 disabled:opacity-60"
       >
-        {busy ? "Check your wallet…" : "Sign in"}
+        {busy ? labels.checkWallet : labels.signIn}
       </button>
       {error && <span className="text-xs text-red-400">{error}</span>}
     </div>

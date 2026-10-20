@@ -58,12 +58,12 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
 
 ## 5. Ressources en ligne
 
-| Plateforme | Ressource                                                                                                                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Supabase   | projet `battle-launch`, id `gqeiqlejxqotldubsxic`, région eu-west-3 (Paris), offre gratuite (0 $/mois)                                          |
-| Vercel     | compte personnel (Hobby). Projet à créer dès que l'app GitHub de Vercel a accès au dépôt (sinon `repo_not_found`)                               |
-| Railway    | workspace « zigxbt's Projects » (`293170f3-…`). Projet pas encore créé : panne Railway le 20/10/2026 (« Deploys have been paused temporarily ») |
-| GitHub     | dépôt privé `OffNorth/battle-launch` (push accepté le 20/10/2026), branche `main`                                                               |
+| Plateforme | Ressource                                                                                                                                                                                                  |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Supabase   | projet `battle-launch`, id `gqeiqlejxqotldubsxic`, région eu-west-3 (Paris), offre gratuite (0 $/mois)                                                                                                     |
+| Vercel     | compte personnel (Hobby). Projet à créer dès que l'app GitHub de Vercel a accès au dépôt (sinon `repo_not_found`)                                                                                          |
+| Railway    | projet `battle-launch` (`0724b8af-…`), environnement `devnet` (`8875a795-…`) : service **Redis** (template) et service **worker** (`0c3118aa-…`, pas encore relié au dépôt : attend `SUPABASE_SECRET_KEY`) |
+| GitHub     | dépôt privé `OffNorth/battle-launch` (push accepté le 20/10/2026), branche `main`                                                                                                                          |
 
 ## 6. Règles de sécurité (obligatoires)
 
@@ -139,7 +139,10 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
       essayer une vraie connexion avec Phantom en devnet
 - [x] Étape 2 : `packages/shared/src/battle/` score, anti-triche, snapshot (26 tests) ; migration `20261020204614_regles_du_score`
       (poids en points de base, règles anti-triche figées par battle)
-- [ ] Étape 3 : site de base (thème arène, wallets, accueil, /docs, avertissement, FR/EN)
+- [x] Étape 3 : site de base — thème arène (toujours sombre, camp A fuchsia / camp B cyan), shadcn/ui, FR/EN sous `/fr` et
+      `/en` (`src/i18n`, redirection selon la langue du navigateur dans `proxy.ts`), accueil (en direct / bientôt / résultats
+      lus dans Supabase), `/docs` (risques, déroulement, formule, anti-triche, vérification, FAQ). Vérifié en local, mobile
+      375 px sans défilement horizontal, console sans erreur
 - [ ] Étape 4 : /create (4 étapes, 3 modes, filtre de contenu, Auto-IA), lobby
 - [ ] Étape 5 : lancement devnet (pré-signature, durable nonce, envoi par le worker)
 - [ ] Étape 6 : indexeur + stats temps réel + page /battle/[id]
@@ -148,6 +151,14 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
 - [ ] Étape 9 : E2E battle complète, seed devnet, README final, checklist de mise en production
 
 ## 10. Pièges connus
+
+- **Textes du site** : `src/i18n/dictionaries/en.ts` (référence) et `fr.ts` (mêmes clés, vérifié par TypeScript). La langue
+  vient du segment `[lang]` via `next/root-params` (`getDictionary()`, `getLocale()`).
+- **Framer Motion** : mêmes `initial`/`animate` au serveur et au navigateur, `MotionConfig reducedMotion="user"` ; sinon erreur
+  d'hydratation et éléments restés invisibles quand le système demande moins d'animations.
+- **Worker Railway** : `NPM_CONFIG_INCLUDE=dev` est posé pour que `tsup` (outil de dev) soit installé au build malgré
+  `NODE_ENV=production`.
+- **Serveur local** : après un déplacement de routes, effacer `apps/web/.next` (sinon `typecheck` lit d'anciens types).
 
 - **Connexion par wallet** : `signInWithWeb3` de Supabase reçoit `{ publicKey, signMessage }` (pas l'objet `useWallet()`
   entier : les types de `signIn` divergent entre wallet-adapter et Supabase). Le profil est créé par un trigger sur
