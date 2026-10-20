@@ -113,6 +113,21 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
   dernière seconde) ; formule publique et versionnée ; snapshot = JSON canonique des trades retenus + paramètres + version,
   haché en SHA-256.
 
+- **Règles du score v1 (`packages/shared/src/battle/score.ts`)**, toutes en entiers (bigint, ppm) pour un gagnant identique
+  au bit près partout :
+  - fenêtre `[startedAt, endsAt[` ; les trades hors fenêtre ne comptent pas (sauf pour l'état du prix) ;
+  - créateurs et wallets **financés par un créateur** : exclus des **deux** camps ;
+  - wallets financés par une même source (≥ `minClusterSize`, 3) : **un seul participant** (un holder, un plafond),
+    sauf sources ignorées (`ignoredFunders`, plateformes d'échange) ;
+  - aller-retour (achat puis vente, ou l'inverse, du même participant en moins de `washWindowSeconds`, 120 s) : les deux
+    trades sortent du volume et des achats, le solde net reste juste ;
+  - plafond **absolu** par participant (5 SOL de volume, 20 achats), plutôt qu'un pourcentage (instable quand il y a peu de monde) ;
+  - holder = solde net > `minHolderTokens` (1 token) **d'après les trades de la battle** (les transferts ne comptent pas) ;
+  - market cap = moyenne pondérée par le temps sur les 5 dernières minutes, tous trades compris (le prix est un fait) ;
+  - égalité : volume, puis holders, puis market cap, sinon match nul (`winner_side` nul et statut `finished`).
+- **Snapshot** : JSON canonique (clés triées, bigint en chaînes, flottants refusés) haché en SHA-256 (Web Crypto). Le jsonb
+  réordonne les clés : on re-canonicalise avant de hacher, donc la vérification marche depuis la base.
+
 ## 9. Avancement
 
 - [x] Étape 0 : dossier, git, monorepo, CLAUDE.md, README, .env.example, projet Supabase — lint/typecheck/test/build OK
@@ -122,7 +137,8 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
       générés (`packages/shared/src/database.types.ts`), bouton de connexion par wallet, `/api/me`
 - [ ] Étape 1 (reste) : activer le fournisseur « Web3 Wallet / Solana » dans Supabase (tableau de bord, par l'utilisateur) et
       essayer une vraie connexion avec Phantom en devnet
-- [ ] Étape 2 : `packages/shared` score, anti-triche, snapshot + tests
+- [x] Étape 2 : `packages/shared/src/battle/` score, anti-triche, snapshot (26 tests) ; migration `20261020204614_regles_du_score`
+      (poids en points de base, règles anti-triche figées par battle)
 - [ ] Étape 3 : site de base (thème arène, wallets, accueil, /docs, avertissement, FR/EN)
 - [ ] Étape 4 : /create (4 étapes, 3 modes, filtre de contenu, Auto-IA), lobby
 - [ ] Étape 5 : lancement devnet (pré-signature, durable nonce, envoi par le worker)

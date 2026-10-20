@@ -152,6 +152,7 @@ export type Database = {
       }
       battles: {
         Row: {
+          anti_cheat_rules: Json
           cancel_reason: string | null
           cluster: string
           created_at: string
@@ -166,6 +167,7 @@ export type Database = {
           launch_at: string | null
           lobby_minutes: number
           lobby_opens_at: string | null
+          market_cap_window_seconds: number
           mode: Database["public"]["Enums"]["battle_mode"]
           score_mode: Database["public"]["Enums"]["score_mode"]
           score_weights: Json
@@ -175,6 +177,7 @@ export type Database = {
           winner_side: Database["public"]["Enums"]["side_letter"] | null
         }
         Insert: {
+          anti_cheat_rules?: Json
           cancel_reason?: string | null
           cluster?: string
           created_at?: string
@@ -189,6 +192,7 @@ export type Database = {
           launch_at?: string | null
           lobby_minutes: number
           lobby_opens_at?: string | null
+          market_cap_window_seconds?: number
           mode: Database["public"]["Enums"]["battle_mode"]
           score_mode?: Database["public"]["Enums"]["score_mode"]
           score_weights?: Json
@@ -198,6 +202,7 @@ export type Database = {
           winner_side?: Database["public"]["Enums"]["side_letter"] | null
         }
         Update: {
+          anti_cheat_rules?: Json
           cancel_reason?: string | null
           cluster?: string
           created_at?: string
