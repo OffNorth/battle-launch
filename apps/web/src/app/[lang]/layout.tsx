@@ -1,12 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
 import { lang } from "next/root-params";
-import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { AnimatedBackground } from "@/components/layout/animated-background";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
-import { THEME_INIT } from "@/components/layout/theme-toggle";
 import { SolanaProvider } from "@/components/providers/solana-provider";
 import { LOCALES } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/get-dictionary";
@@ -15,6 +13,9 @@ import "../globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+
+/** Attribut HTML pas encore dans les types de React. */
+const RENDER_BLOCKING = { blocking: "render" } as Record<string, string>;
 
 export async function generateStaticParams() {
   return LOCALES.map((l) => ({ lang: l }));
@@ -45,11 +46,15 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
       suppressHydrationWarning
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/*
+          Thème choisi appliqué avant le premier affichage (public/theme-init.js). Script externe
+          « async » : React 19 l'accepte (une balise <script> en ligne donne une erreur) ;
+          blocking="render" fait attendre le premier affichage jusqu'à son exécution (pas de flash).
+        */}
+        <script src="/theme-init.js" async {...RENDER_BLOCKING} />
+      </head>
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
-        {/* Applique le thème choisi avant l'hydratation (évite un flash ; voir theme-toggle.tsx). */}
-        <Script id="theme-init" strategy="beforeInteractive">
-          {THEME_INIT}
-        </Script>
         <AnimatedBackground />
         <SolanaProvider rpcUrl={solana.NEXT_PUBLIC_SOLANA_RPC_URL}>
           <SiteHeader dict={dict} locale={locale} cluster={solana.NEXT_PUBLIC_SOLANA_CLUSTER} />

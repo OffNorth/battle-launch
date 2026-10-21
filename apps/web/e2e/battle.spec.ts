@@ -78,3 +78,26 @@ test("pages publiques : règles, classement, Hall of Fame, mobile sans défileme
   }
   expect(errors).toEqual([]);
 });
+
+test("navigation dans le site sans erreur, thème retenu, fichiers publics servis tels quels", async ({
+  page,
+  request,
+}) => {
+  const errors = watchConsole(page);
+  await page.goto("/en");
+  // Navigation côté navigateur (sans rechargement), là où React refaisait le rendu du layout.
+  for (const name of ["Leaderboard", "Hall of Fame", "Rules & FAQ", "Battles"]) {
+    await page.getByRole("banner").getByRole("link", { name, exact: true }).first().click();
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
+  }
+  // Thème clair choisi : toujours là après rechargement, dès le premier affichage.
+  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  expect(errors).toEqual([]);
+
+  for (const path of ["/sw.js", "/theme-init.js"]) {
+    const res = await request.get(path, { maxRedirects: 0 });
+    expect(res.status(), path).toBe(200);
+  }
+});

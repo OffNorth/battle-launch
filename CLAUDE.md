@@ -187,7 +187,10 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
   moins d'animations. Le navigateur intégré de Claude a ce réglage actif : les animations y paraissent immobiles ; pour
   les voir, captures avec Playwright + Edge (réglage normal). **Valeurs calculées (angles, positions) arrondies** et pas de
   raccourci `background` dans un `style` animé par Framer Motion : sinon écart serveur/navigateur (erreur d'hydratation).
-  Script du thème : `next/script` `strategy="beforeInteractive"` (une balise `<script>` brute dans le layout donne une erreur React).
+  Script du thème : fichier `public/theme-init.js` chargé par `<script src async blocking="render">` dans le layout. **Jamais de
+  `<script>` en ligne ni de `next/script` en ligne** : React 19 affiche « Encountered a script tag » quand il refait le rendu
+  du layout dans le navigateur ; seul un script `async` avec `src` (et sans onLoad/onError) y échappe (vérifié dans react-dom).
+  `proxy.ts` laisse passer les fichiers `.js/.json/.txt` de `public/` (avant, `/sw.js` était redirigé vers `/en/sw.js` : push cassé).
 - **Serveur local** : après une modification de `globals.css`, le serveur de dev ne recompile pas toujours la feuille ;
   le redémarrer.
 

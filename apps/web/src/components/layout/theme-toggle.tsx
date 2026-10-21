@@ -7,10 +7,9 @@ const KEY = "battle-theme";
 
 /**
  * Bouton clair / sombre. Le thème vit dans l'attribut data-theme de <html> (posé avant l'affichage
- * par le petit script de THEME_INIT, pour éviter un flash) ; le choix est gardé dans le navigateur
+ * par public/theme-init.js, pour éviter un flash ; même clé KEY) ; le choix est gardé dans le navigateur
  * (localStorage, facultatif : sans lui le thème sombre reste le défaut).
  */
-export const THEME_INIT = `try{var t=localStorage.getItem("${KEY}");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
 
 /** Thème courant, lu dans <html> (null au rendu serveur : le bouton n'affiche alors aucune icône). */
 function subscribe(onChange: () => void) {

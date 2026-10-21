@@ -21,8 +21,9 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Tout sauf les fichiers statiques, les images et les fichiers de métadonnées.
+  // Tout sauf les fichiers statiques (images, scripts de public/ comme sw.js et theme-init.js),
+  // et les fichiers de métadonnées : sinon /sw.js serait redirigé vers /en/sw.js (introuvable).
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\.(?:svg|png|jpg|jpeg|gif|webp|ico|js|json|txt|webmanifest)$).*)",
   ],
 };
