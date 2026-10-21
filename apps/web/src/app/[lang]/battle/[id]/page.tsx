@@ -1,19 +1,20 @@
 import { lamportsToSolString } from "@battle/shared";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
 import { Countdown } from "@/components/battle/countdown";
-import { DominationBar } from "@/components/battle/domination-bar";
 import { BattleLiveRefresh } from "@/components/lobby/battle-live-refresh";
 import { CreatorLaunchPanel } from "@/components/lobby/creator-launch-panel";
+import { LiveBattle } from "@/components/live/live-battle";
 import { LobbyActions } from "@/components/lobby/lobby-actions";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries/en";
 import { getDictionary, getLocale } from "@/i18n/get-dictionary";
 import { getBattle } from "@/lib/battles";
 import { solanaPublicEnv } from "@/lib/env";
-import { scorePercent } from "@/lib/format";
+import { getLiveData } from "@/lib/live";
 
 const Id = z.uuid();
 
@@ -94,14 +95,38 @@ async function BattleView({
         )}
       </div>
 
-      {!isPreLaunch && battle.status !== "cancelled" && (
-        <div className="mt-6">
-          <DominationBar
-            percentA={scorePercent(battle.sides.A?.score)}
-            labelA={a?.name ?? "A"}
-            labelB={b?.name ?? "B"}
-          />
+      {battle.status === "launching" && (
+        <p className="mt-6 text-center text-sm font-medium text-side-a">{dict.live.launching}</p>
+      )}
+      {battle.status === "closing" && (
+        <p className="mt-6 text-center text-sm font-medium text-side-a">{dict.live.closing}</p>
+      )}
+      {battle.status === "finished" && (
+        <div className="mt-6 flex flex-col items-center gap-2 rounded-xl border border-side-a/50 bg-card p-4 text-center">
+          <p className="text-xl font-black text-side-a">
+            {battle.winnerSide
+              ? dict.live.winnerBanner.replace(
+                  "{name}",
+                  battle.sides[battle.winnerSide]?.name ?? battle.winnerSide,
+                )
+              : dict.live.drawBanner}
+          </p>
+          <Link
+            href={`/${locale}/battle/${battle.id}/verify`}
+            className="text-sm underline underline-offset-4"
+          >
+            {dict.live.verify}
+          </Link>
         </div>
+      )}
+      {["live", "closing", "finished"].includes(battle.status) && (
+        <LiveSection
+          battleId={battle.id}
+          status={battle.status}
+          sides={battle.sideDetails}
+          dict={dict}
+          locale={locale}
+        />
       )}
 
       {battle.status === "cancelled" && (
@@ -191,5 +216,42 @@ function Info({ k, v }: { k: string; v: string }) {
       <dt className="text-xs text-muted-foreground">{k}</dt>
       <dd className="font-semibold">{v}</dd>
     </div>
+  );
+}
+
+/** Duel en direct (ou terminé) : données de départ lues au serveur, la suite en temps réel. */
+async function LiveSection(props: {
+  battleId: string;
+  status: string;
+  sides: { side: "A" | "B"; name: string; ticker: string; mint: string | null }[];
+  dict: Dictionary;
+  locale: Locale;
+}) {
+  const initial = await getLiveData(props.battleId);
+  return (
+    <>
+      <LiveBattle
+        battleId={props.battleId}
+        status={props.status}
+        initial={initial}
+        sides={props.sides.map((s) => ({
+          side: s.side,
+          name: s.name,
+          ticker: s.ticker,
+          mint: s.mint,
+        }))}
+        cluster={solanaPublicEnv().NEXT_PUBLIC_SOLANA_CLUSTER}
+        locale={props.locale}
+        dict={props.dict}
+      />
+      {initial.flags.length > 0 && (
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          {props.dict.live.excluded.replace(
+            "{n}",
+            String(new Set(initial.flags.map((f) => f.wallet)).size),
+          )}
+        </p>
+      )}
+    </>
   );
 }

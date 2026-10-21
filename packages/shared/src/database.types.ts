@@ -743,6 +743,10 @@ export type Database = {
         }
         Returns: string
       }
+      post_chat_message: {
+        Args: { p_battle: string; p_body: string }
+        Returns: number
+      }
       find_similar_sides: {
         Args: { p_min_similarity?: number; p_names: string[] }
         Returns: {
@@ -753,6 +757,14 @@ export type Database = {
       }
       set_battle_watch: {
         Args: { p_battle: string; p_watch: boolean }
+        Returns: undefined
+      }
+      submit_report: {
+        Args: {
+          p_reason: string
+          p_target_id: string
+          p_target_type: Database["public"]["Enums"]["report_target"]
+        }
         Returns: undefined
       }
       submit_launch_tx: {

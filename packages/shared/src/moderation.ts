@@ -37,7 +37,7 @@ export function normalizeForModeration(input: string): string {
 }
 
 // Marques connues (noms déposés) : un token ne doit pas se faire passer pour elles.
-const BRANDS = [
+export const BRANDS = [
   "nike",
   "adidas",
   "apple",
@@ -86,7 +86,7 @@ const BRANDS = [
 ];
 
 // Personnalités réelles : pas de token à leur nom.
-const PEOPLE = [
+export const PEOPLE = [
   "trump",
   "donald trump",
   "biden",
@@ -138,7 +138,7 @@ const PEOPLE = [
 
 // Haine et terrorisme. Liste courte des termes les plus courants (FR et EN), à compléter par la
 // modération. Ces mots sont cherchés aussi à l'intérieur des mots collés (« nazicoin »).
-const HATE_EMBEDDED = [
+export const HATE_EMBEDDED = [
   "nazi",
   "hitler",
   "heil",
@@ -178,7 +178,16 @@ const HATE_EMBEDDED = [
 ];
 
 // Mots courts qui ne doivent compter qu'entiers (sinon « spicy » ou « pedestal » seraient refusés).
-const WHOLE_WORD_ONLY = new Set(["spic", "pede", "pedo", "isis", "heil", "kkk", "negro", "retard"]);
+export const WHOLE_WORD_ONLY = new Set([
+  "spic",
+  "pede",
+  "pedo",
+  "isis",
+  "heil",
+  "kkk",
+  "negro",
+  "retard",
+]);
 
 function contains(normalized: string, squashed: string, term: string, embedded: boolean): boolean {
   const t = normalizeForModeration(term);

@@ -63,6 +63,7 @@ const SQL_ERRORS: Record<string, number> = {
   already_launched: 409,
   invalid_input: 400,
   too_many_requests: 429,
+  content_refused: 422,
 };
 
 /** Erreur renvoyée par un appel à la base -> réponse HTTP propre. */
