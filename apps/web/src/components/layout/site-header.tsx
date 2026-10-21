@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { SignInButton } from "@/components/auth/sign-in-button";
 import type { Locale } from "@/i18n/config";
@@ -51,7 +52,10 @@ export function SiteHeader({
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <ThemeToggle labelLight={dict.nav.themeLight} labelDark={dict.nav.themeDark} />
-          <SignInButton labels={dict.auth} />
+          {/* Bornes : un écart au rendu (extension de wallet…) ne refait que ce bouton, pas toute la page. */}
+          <Suspense fallback={null}>
+            <SignInButton labels={dict.auth} />
+          </Suspense>
         </div>
       </div>
       <div className="flex items-center justify-between gap-4 border-t border-border px-4 py-2 text-sm text-muted-foreground md:hidden">

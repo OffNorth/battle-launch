@@ -187,7 +187,9 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
   moins d'animations. Le navigateur intégré de Claude a ce réglage actif : les animations y paraissent immobiles ; pour
   les voir, captures avec Playwright + Edge (réglage normal). **Valeurs calculées (angles, positions) arrondies** et pas de
   raccourci `background` dans un `style` animé par Framer Motion : sinon écart serveur/navigateur (erreur d'hydratation).
-  Script du thème : fichier `public/theme-init.js` chargé par `<script src async blocking="render">` dans le layout. **Jamais de
+  Script du thème : fichier `public/theme-init.js` chargé par `<script src async blocking="render">` dans le `<body>` du
+  layout (React le remonte seul dans `<head>` ; **pas de `<head>` écrit à la main** : si React refait la page, il le monte en
+  double, erreur « mounting a new head component »). **Jamais de
   `<script>` en ligne ni de `next/script` en ligne** : React 19 affiche « Encountered a script tag » quand il refait le rendu
   du layout dans le navigateur ; seul un script `async` avec `src` (et sans onLoad/onError) y échappe (vérifié dans react-dom).
   `proxy.ts` laisse passer les fichiers `.js/.json/.txt` de `public/` (avant, `/sw.js` était redirigé vers `/en/sw.js` : push cassé).
@@ -224,6 +226,9 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
   `NODE_ENV=production`.
 - **Serveur local** : après un déplacement de routes, effacer `apps/web/.next` (sinon `typecheck` lit d'anciens types).
 
+- **Bouton wallet et hydratation** : le navigateur se souvient du wallet choisi (`walletName` en localStorage), pas le
+  serveur. `SignInButton` affiche donc un bouton neutre tant qu'il n'est pas monté (`useMounted`), et il est dans un
+  `<Suspense>` : un écart ne refait que lui, pas toute la page. Test E2E avec un faux wallet « Wallet Standard ».
 - **Connexion par wallet** (`sign-in-button.tsx`) : si le wallet sait faire `signIn` (Phantom, Solflare, Backpack), c'est lui qui
   écrit le message « Sign In With Solana » ; sinon on l'écrit nous-mêmes (`lib/siws.ts`, ordre du standard) et on passe
   `{ message, signature }`. **Ne jamais laisser Supabase écrire le message** : il met « Version » avant « URI » et Phantom le

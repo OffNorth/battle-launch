@@ -101,3 +101,41 @@ test("navigation dans le site sans erreur, thème retenu, fichiers publics servi
     expect(res.status(), path).toBe(200);
   }
 });
+
+test("wallet déjà choisi (comme Phantom) : la page s'hydrate sans écart ni erreur", async ({
+  page,
+}) => {
+  // Faux wallet au standard « Wallet Standard » (comme l'extension Phantom), déjà choisi lors d'une
+  // visite précédente : le navigateur affiche son icône alors que le serveur ne le connaît pas.
+  await page.addInitScript(() => {
+    const icon =
+      "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxIDEiLz4=";
+    const wallet = {
+      version: "1.0.0",
+      name: "Phantom",
+      icon,
+      chains: ["solana:devnet"],
+      accounts: [],
+      features: {
+        "standard:connect": { version: "1.0.0", connect: () => new Promise(() => {}) },
+        "standard:events": { version: "1.0.0", on: () => () => {} },
+        "solana:signTransaction": {
+          version: "1.0.0",
+          supportedTransactionVersions: ["legacy", 0],
+          signTransaction: async () => [],
+        },
+      },
+    };
+    const callback = ({ register }: { register: (w: unknown) => void }) => register(wallet);
+    window.dispatchEvent(new CustomEvent("wallet-standard:register-wallet", { detail: callback }));
+    window.addEventListener("wallet-standard:app-ready", (e) =>
+      callback((e as CustomEvent<{ register: (w: unknown) => void }>).detail),
+    );
+    localStorage.setItem("walletName", JSON.stringify("Phantom"));
+  });
+  const errors = watchConsole(page);
+  await page.goto("/en");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await page.waitForTimeout(1500);
+  expect(errors).toEqual([]);
+});

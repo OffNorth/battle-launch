@@ -2,7 +2,7 @@
 
 import { useWallet } from "@solana/wallet-adapter-react";
 import { BaseWalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { SolanaWallet } from "@supabase/supabase-js";
 import { signInMessage } from "@/lib/siws";
 import { createClient } from "@/lib/supabase/client";
@@ -30,9 +30,20 @@ function shortWallet(wallet: string) {
   return `${wallet.slice(0, 4)}…${wallet.slice(-4)}`;
 }
 
+/** Vrai seulement dans le navigateur, après le premier rendu (faux au rendu serveur et pendant l'hydratation). */
+const noSubscribe = () => () => {};
+function useMounted() {
+  return useSyncExternalStore(
+    noSubscribe,
+    () => true,
+    () => false,
+  );
+}
+
 /** Connexion par signature de message : wallet connecté -> signature -> session Supabase. */
 export function SignInButton({ labels }: { labels: SignInLabels }) {
   const wallet = useWallet();
+  const mounted = useMounted();
   // Client créé à la première utilisation dans le navigateur (jamais pendant le rendu serveur).
   const clientRef = useRef<ReturnType<typeof createClient> | null>(null);
   const supabase = () => (clientRef.current ??= createClient());
@@ -58,6 +69,14 @@ export function SignInButton({ labels }: { labels: SignInLabels }) {
     if (sessionWallet && connected && connected !== sessionWallet) void supabase().auth.signOut();
   }, [connected, sessionWallet]);
 
+  // Le navigateur se souvient du dernier wallet choisi (icône Phantom…), le serveur non : avant
+  // l'hydratation, on affiche le même bouton neutre des deux côtés (sinon React refait toute la page).
+  if (!mounted)
+    return (
+      <span className="inline-flex h-9 items-center rounded-full bg-side-a px-4 text-sm font-medium text-on-side">
+        {labels.wallet["no-wallet"]}
+      </span>
+    );
   if (!wallet.connected) return <BaseWalletMultiButton labels={labels.wallet} />;
 
   if (sessionWallet) {

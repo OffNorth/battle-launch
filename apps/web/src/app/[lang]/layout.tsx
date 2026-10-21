@@ -46,15 +46,14 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
       suppressHydrationWarning
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
+      <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
         {/*
           Thème choisi appliqué avant le premier affichage (public/theme-init.js). Script externe
-          « async » : React 19 l'accepte (une balise <script> en ligne donne une erreur) ;
-          blocking="render" fait attendre le premier affichage jusqu'à son exécution (pas de flash).
+          « async » : React 19 le place lui-même dans <head> (pas de <head> écrit à la main : il
+          serait remonté en double si React refait la page). blocking="render" fait attendre le
+          premier affichage jusqu'à son exécution (pas de flash).
         */}
         <script src="/theme-init.js" async {...RENDER_BLOCKING} />
-      </head>
-      <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
         <AnimatedBackground />
         <SolanaProvider rpcUrl={solana.NEXT_PUBLIC_SOLANA_RPC_URL}>
           <SiteHeader dict={dict} locale={locale} cluster={solana.NEXT_PUBLIC_SOLANA_CLUSTER} />
