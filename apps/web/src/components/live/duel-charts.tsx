@@ -19,18 +19,18 @@ export function DuelCharts(props: { candles: CandlePoint[]; labelA: string; labe
   const refA = useRef<HTMLDivElement>(null);
   const refB = useRef<HTMLDivElement>(null);
   const seriesRef = useRef<{ A?: ISeriesApi<"Candlestick">; B?: ISeriesApi<"Candlestick"> }>({});
+  const chartsRef = useRef<IChartApi[]>([]);
 
   useEffect(() => {
     if (!refA.current || !refB.current) return;
-    const css = getComputedStyle(document.documentElement);
-    const color = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
+    // Couleurs en hexadécimal : la bibliothèque ne lit pas les couleurs lab()/oklch() du thème.
     const make = (el: HTMLDivElement, up: string): [IChartApi, ISeriesApi<"Candlestick">] => {
       const chart = createChart(el, {
         autoSize: true,
         height: 240,
         layout: {
           background: { type: ColorType.Solid, color: "transparent" },
-          textColor: color("--muted-foreground", "#556"),
+          textColor: "#52665d",
           attributionLogo: false,
         },
         grid: { vertLines: { visible: false }, horzLines: { color: "rgba(22,101,52,0.08)" } },
@@ -51,6 +51,7 @@ export function DuelCharts(props: { candles: CandlePoint[]; labelA: string; labe
     const [chartA, seriesA] = make(refA.current, "#16a34a");
     const [chartB, seriesB] = make(refB.current, "#14532d");
     seriesRef.current = { A: seriesA, B: seriesB };
+    chartsRef.current = [chartA, chartB];
 
     // Synchronisation des deux échelles de temps (sans boucle infinie).
     let syncing = false;
@@ -67,6 +68,7 @@ export function DuelCharts(props: { candles: CandlePoint[]; labelA: string; labe
       chartA.remove();
       chartB.remove();
       seriesRef.current = {};
+      chartsRef.current = [];
     };
   }, []);
 
@@ -84,6 +86,8 @@ export function DuelCharts(props: { candles: CandlePoint[]; labelA: string; labe
         .sort((a, b) => a.time - b.time);
       seriesRef.current[side]?.setData(data);
     }
+    // Toute la battle visible d'un coup (les deux graphiques restent synchronisés).
+    chartsRef.current[0]?.timeScale().fitContent();
   }, [props.candles]);
 
   return (

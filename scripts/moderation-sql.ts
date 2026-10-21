@@ -16,7 +16,8 @@ const rows: string[] = [];
 const add = (list: readonly string[], category: string, embeddedAllowed: boolean) => {
   for (const raw of list) {
     const term = normalizeForModeration(raw);
-    const embedded = embeddedAllowed && !term.includes(" ") && !WHOLE_WORD_ONLY.has(term) && term.length >= 4;
+    const embedded =
+      embeddedAllowed && !term.includes(" ") && !WHOLE_WORD_ONLY.has(term) && term.length >= 4;
     rows.push(`  ('${term.replace(/'/g, "''")}', '${category}', ${embedded})`);
   }
 };

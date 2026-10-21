@@ -124,11 +124,17 @@ export async function getProfile(wallet: string): Promise<ProfileView | null> {
         : [],
     )
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  // Une ligne par battle. Créateur des deux camps (mode Créateur) : ni gagnée ni perdue.
+  const byBattle = new Map<string, (typeof battles)[number]>();
+  for (const b of battles) {
+    const seen = byBattle.get(b.id);
+    byBattle.set(b.id, seen ? { ...seen, won: null } : b);
+  }
   return {
     wallet: profile.wallet,
     displayName: profile.display_name,
     createdAt: profile.created_at,
     wins: count ?? 0,
-    battles,
+    battles: [...byBattle.values()],
   };
 }

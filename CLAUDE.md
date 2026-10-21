@@ -58,12 +58,12 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
 
 ## 5. Ressources en ligne
 
-| Plateforme | Ressource                                                                                                                                                                                                  |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Supabase   | projet `battle-launch`, id `gqeiqlejxqotldubsxic`, région eu-west-3 (Paris), offre gratuite (0 $/mois)                                                                                                     |
-| Vercel     | compte personnel (Hobby). Projet à créer dès que l'app GitHub de Vercel a accès au dépôt (sinon `repo_not_found`)                                                                                          |
-| Railway    | projet `battle-launch` (`0724b8af-…`), environnement `devnet` (`8875a795-…`) : service **Redis** (template) et service **worker** (`0c3118aa-…`, pas encore relié au dépôt : attend `SUPABASE_SECRET_KEY`) |
-| GitHub     | dépôt privé `OffNorth/battle-launch` (push accepté le 20/10/2026), branche `main`                                                                                                                          |
+| Plateforme | Ressource                                                                                                                                                                                                                                      |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Supabase   | projet `battle-launch`, id `gqeiqlejxqotldubsxic`, région eu-west-3 (Paris), offre gratuite (0 $/mois)                                                                                                                                         |
+| Vercel     | compte personnel (Hobby). Projet à créer dès que l'app GitHub de Vercel a accès au dépôt (sinon `repo_not_found`)                                                                                                                              |
+| Railway    | projet `battle-launch` (`0724b8af-…`), environnement `devnet` (`8875a795-…`) : service **Redis** (template) et service **worker** (`0c3118aa-…`, variables posées, pas encore relié au dépôt : l'app GitHub de Railway n'a pas accès au dépôt) |
+| GitHub     | dépôt privé `OffNorth/battle-launch` (push accepté le 20/10/2026), branche `main`                                                                                                                                                              |
 
 ## 6. Règles de sécurité (obligatoires)
 
@@ -151,11 +151,24 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
       `create_battle` / `accept_duel` / `hit_rate_limit` / `find_similar_sides`, réservées au serveur)
 - [x] Le site n'a plus de clé secrète Supabase (décision du 21/10/2026) : migrations `ecritures_sans_cle` et `fonctions_privees`
 - [ ] Étape 4 (essai réel) : créer une battle connecté avec un wallet — attend la connexion Web3 (Phantom en devnet)
-- [ ] Étape 5 : lancement devnet (pré-signature, durable nonce, envoi par le worker)
-- [ ] Étape 6 : indexeur + stats temps réel + page /battle/[id]
-- [ ] Étape 7 : clôture, snapshot, vérification, récompenses, Hall of Fame, leaderboard, profils, notifications
-- [ ] Étape 8 : admin, modération, signalement, rate limiting, SEO/OG, analytics
-- [ ] Étape 9 : E2E battle complète, seed devnet, README final, checklist de mise en production
+- [x] Étape 5 (code) : lancement devnet — comptes durable nonce, **deux transactions par camp** (création 923 octets,
+      achat 841 octets : ensemble elles dépassaient la limite de 1 232), pré-signées dans le lobby
+      (`packages/shared/src/launch`, `components/lobby/launch-prep.tsx`), contrôlées octet par octet par le serveur et le
+      worker (`validate.ts`), envoyées par le worker (`jobs/launch.ts`). Simulation dans le vrai programme pump.fun du devnet
+      OK (`scripts/devnet-simulate-launch.ts`). **Pas d'envoi réel** (faucet devnet limité, pas de SOL de test)
+- [x] Étape 6 : indexeur (`jobs/index-trades.ts` : TradeEvent lu dans les journaux, financeurs, stats, bougies d'une
+      minute, wallets écartés), page live (barre de domination, deux graphiques synchronisés, fil des trades, achat A/B
+      signé dans le wallet, chat filtré), mise à jour par Realtime
+- [x] Étape 7 : clôture (`jobs/close.ts` : snapshot, gagnant, badge), page `/verify` (recalcul dans le navigateur), Hall of
+      Fame, classement, profils, push navigateur (VAPID créées par le worker, clé privée dans Redis), annonce Telegram
+- [x] Étape 8 : admin (`/admin` : signalements, masquage, ban, À la une), filtre de contenu aussi en base
+      (`app_private.is_text_clean`, mêmes listes que `moderation.ts` via `scripts/moderation-sql.ts`), limites de débit,
+      sitemap/robots/OG, Vercel Analytics (sans cookie)
+- [x] Étape 9 : seed de démo (`scripts/seed-devnet.ts`), test d'intégration du cycle complet
+      (`apps/worker/src/jobs/cycle.test.ts`), E2E Playwright avec Edge (`apps/web/e2e`, 5 parcours, sans erreur console),
+      README final, `PRODUCTION.md`
+- [ ] Reste : déploiements Vercel/Railway (accès GitHub), fournisseur Web3 Supabase, battle réelle sur le devnet avec deux
+      wallets, `npm audit` (15 alertes, outils de dev surtout) — voir `PRODUCTION.md`
 
 ## 10. Pièges connus
 
@@ -172,10 +185,14 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
   `public`, code privilégié `SECURITY DEFINER` dans `app_private` (non exposé ; conseil du linter 0029). Elles vérifient
   elles-mêmes l'appelant (`app_private.current_profile_id()`), le ban, la limite de débit (`app_private.enforce_rate_limit`)
   et décident du statut et des horaires. Les erreurs voulues sont levées par `raise exception '<code>'` (code P0001) et
-  traduites par `fromDbError`. Quelqu'un qui appelle la base directement saute le filtre de contenu : **le worker le
-  refait avant tout lancement** (à faire à l'étape 5).
-- **Worker** : aura son propre rôle Postgres aux droits limités (mot de passe généré et posé directement dans les variables
-  Railway, jamais affiché ni commité).
+  traduites par `fromDbError`. Le filtre de contenu est aussi appliqué **dans la base** (`create_battle`,
+  `accept_duel`, chat) : appeler la base directement ne le contourne pas.
+- **Worker et base** : en local, rôle `battle_worker` (BYPASSRLS, droits limités) via `DATABASE_URL`. En production, rôle
+  `battle_worker_prod` (hérite du premier) : au premier démarrage le worker tire un mot de passe, le range dans Redis
+  (`battle:db-password`) et en donne l'empreinte SCRAM à la base via `battle_bootstrap` (identifiant d'amorçage à usage
+  unique, `app_private.rotate_worker_password`, qui le désactive ; valable jusqu'au 22/10/2026 00:00 UTC, à renouveler
+  s'il a expiré avant le premier démarrage). Connexion par le pooler `aws-1-eu-west-3.pooler.supabase.com:5432`,
+  utilisateur `<rôle>.gqeiqlejxqotldubsxic`. Personne ne voit le mot de passe de production.
 - **RPC et nul** : passer `null` explicitement à une fonction SQL (une clé absente empêche PostgREST de trouver la fonction).
 - **Realtime** : `postgres_changes` filtré par battle suffit au début ; au-delà d'environ 3 000 spectateurs simultanés sur
   la même battle, la doc Supabase conseille Broadcast.
@@ -200,6 +217,15 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
   publiques sont validées à la première utilisation, pas à l'import (le build passe sans elles).
 - Les avis « unused index » (INFO) de `get_advisors` performance sont normaux tant que la base est vide.
 
+- **Graphiques** : lightweight-charts ne lit pas les couleurs `lab()`/`oklch()` du thème : couleurs en hexadécimal
+  dans `duel-charts.tsx`. Prix des bougies : lamports pour un million de tokens entiers (`candlePrice`).
+- **Lancement** : la courbe du devnet n'a pas les réserves du mainnet (lire `Global` avec `fetchCurveParams`) ; mints en
+  Token-2022 ; `NATIVE_MINT` défini localement (web3.js ne l'exporte pas). Lancement mainnet refusé tant que le bundle
+  Jito n'existe pas.
+- **Tests E2E** : `npm run e2e --workspace @battle/web` (Edge installé, aucun navigateur téléchargé) ; ils lisent les
+  données de démo, qui doivent être en base. Vitest ignore `e2e/` (`apps/web/vitest.config.ts`).
+- **Lint du worker** : tsup écrit un fichier temporaire `*.bundled_*.mjs` pendant le build ; ignoré par ESLint (sinon
+  `npm run check` échoue au hasard).
 - `npm audit` signale `braces` (dépendance de `eslint-config-next`, outil de dev seulement, pas dans le site livré).
 - ESLint 9 est marqué « plus maintenu ». On le garde tant que la compatibilité des plugins de `eslint-config-next` avec
   ESLint 10 n'est pas essayée.
