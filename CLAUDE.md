@@ -148,7 +148,8 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
       doublons par trigrammes, page `/battle/[id]` avec lobby (pré-inscription, relever un duel, annuler), mise à jour en
       direct (Realtime). Migration `20261020215205_creation_lobby` (statut `open`, `battle_watchers`, `rate_limits`, fonctions
       `create_battle` / `accept_duel` / `hit_rate_limit` / `find_similar_sides`, réservées au serveur)
-- [ ] Étape 4 (essai réel) : créer une battle connecté avec un wallet — attend `SUPABASE_SECRET_KEY` en local et la connexion Web3
+- [x] Le site n'a plus de clé secrète Supabase (décision du 21/10/2026) : migrations `ecritures_sans_cle` et `fonctions_privees`
+- [ ] Étape 4 (essai réel) : créer une battle connecté avec un wallet — attend la connexion Web3 (Phantom en devnet)
 - [ ] Étape 5 : lancement devnet (pré-signature, durable nonce, envoi par le worker)
 - [ ] Étape 6 : indexeur + stats temps réel + page /battle/[id]
 - [ ] Étape 7 : clôture, snapshot, vérification, récompenses, Hall of Fame, leaderboard, profils, notifications
@@ -157,8 +158,16 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
 
 ## 10. Pièges connus
 
-- **Écritures** : toujours par une route `/api/...` (`lib/api.ts` : `requireProfile` d'abord, puis `rateLimit`, puis
-  `parseBody` avec le schéma Zod partagé, puis filtre de contenu). Les fonctions SQL appelées sont réservées à `service_role`.
+- **Écritures sans clé secrète** (choix de l'utilisateur, 21/10/2026) : le site n'a PAS de `service_role`. Une route `/api/...`
+  vérifie la session (`requireProfile`), valide avec le schéma Zod partagé, passe le filtre de contenu, puis appelle une
+  fonction SQL **avec la session de l'utilisateur** (`lib/supabase/server.ts`). Ces fonctions : relais `SECURITY INVOKER` dans
+  `public`, code privilégié `SECURITY DEFINER` dans `app_private` (non exposé ; conseil du linter 0029). Elles vérifient
+  elles-mêmes l'appelant (`app_private.current_profile_id()`), le ban, la limite de débit (`app_private.enforce_rate_limit`)
+  et décident du statut et des horaires. Les erreurs voulues sont levées par `raise exception '<code>'` (code P0001) et
+  traduites par `fromDbError`. Quelqu'un qui appelle la base directement saute le filtre de contenu : **le worker le
+  refait avant tout lancement** (à faire à l'étape 5).
+- **Worker** : aura son propre rôle Postgres aux droits limités (mot de passe généré et posé directement dans les variables
+  Railway, jamais affiché ni commité).
 - **RPC et nul** : passer `null` explicitement à une fonction SQL (une clé absente empêche PostgREST de trouver la fonction).
 - **Realtime** : `postgres_changes` filtré par battle suffit au début ; au-delà d'environ 3 000 spectateurs simultanés sur
   la même battle, la doc Supabase conseille Broadcast.

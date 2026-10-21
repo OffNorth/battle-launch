@@ -3,9 +3,9 @@ import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { moderateText, SideInput } from "@battle/shared";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { apiError, ApiFailure, handle, parseBody, rateLimit, requireProfile } from "@/lib/api";
+import { apiError, ApiFailure, fromDbError, handle, parseBody, requireProfile } from "@/lib/api";
 import { serverEnv } from "@/lib/env.server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 /**
  * Mode Auto-IA : Claude propose trois paires de concepts opposés pour une battle.
@@ -42,10 +42,13 @@ must be different from each other.`;
 
 export async function POST(request: globalThis.Request) {
   return handle(async () => {
-    const profile = await requireProfile();
+    await requireProfile();
     const apiKey = serverEnv().ANTHROPIC_API_KEY;
     if (!apiKey) throw new ApiFailure(apiError(503, "auto_ai_unavailable"));
-    await rateLimit(`wallet:${profile.wallet}:ai`, 10, 3600);
+    // Limite de débit comptée par la base pour la personne connectée (10 par heure).
+    const supabase = await createClient();
+    const limited = await supabase.rpc("consume_rate_limit", { p_action: "ai" });
+    if (limited.error) throw fromDbError(limited.error, "auto_ai_failed");
     const input = await parseBody(request, Request);
 
     const hint = moderateText(input.hint);
@@ -105,10 +108,9 @@ export async function POST(request: globalThis.Request) {
 
     // Doublons : un concept est écarté si l'un de ses camps ressemble trop à un camp déjà créé.
     // Une requête par concept (3 au plus) pour savoir exactement lequel ressemble à quoi.
-    const admin = createAdminClient();
     const checks = await Promise.all(
       candidates.map((c) =>
-        admin.rpc("find_similar_sides", {
+        supabase.rpc("find_similar_sides", {
           p_names: [c.sideA.name, c.sideB.name],
           p_min_similarity: DUPLICATE_SIMILARITY,
         }),

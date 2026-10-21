@@ -698,28 +698,20 @@ export type Database = {
     }
     Functions: {
       accept_duel: {
-        Args: {
-          p_battle: string
-          p_challenger: string
-          p_launch_at: string
-          p_lobby_opens_at: string
-          p_side: Json
-        }
-        Returns: string
+        Args: { p_battle: string; p_side: Json }
+        Returns: undefined
       }
+      cancel_battle: { Args: { p_battle: string }; Returns: undefined }
+      consume_rate_limit: { Args: { p_action: string }; Returns: undefined }
       create_battle: {
         Args: {
-          p_creator: string
           p_duration_minutes: number
           p_initial_buy_lamports: number
-          p_launch_at: string
           p_lobby_minutes: number
-          p_lobby_opens_at: string
           p_mode: Database["public"]["Enums"]["battle_mode"]
           p_score_mode: Database["public"]["Enums"]["score_mode"]
           p_score_weights: Json
           p_sides: Json
-          p_status: Database["public"]["Enums"]["battle_status"]
           p_theme: string
         }
         Returns: string
@@ -732,9 +724,9 @@ export type Database = {
           similarity: number
         }[]
       }
-      hit_rate_limit: {
-        Args: { p_key: string; p_limit: number; p_window_seconds: number }
-        Returns: boolean
+      set_battle_watch: {
+        Args: { p_battle: string; p_watch: boolean }
+        Returns: undefined
       }
     }
     Enums: {
