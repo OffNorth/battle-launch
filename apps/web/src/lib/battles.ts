@@ -31,19 +31,32 @@ const SELECT = `id, theme, status, duration_minutes, launch_at, started_at, ends
 
 /** Battles publiques pour l'accueil : en direct, à venir, terminées. */
 export async function listHomeBattles(): Promise<{
+  featured: BattleSummary[];
   live: BattleSummary[];
   upcoming: BattleSummary[];
   results: BattleSummary[];
 }> {
   const supabase = createPublicClient();
-  const [live, upcoming, results] = await Promise.all([
+  const [featured, live, upcoming, results] = await Promise.all([
+    supabase
+      .from("battles")
+      .select(SELECT)
+      .eq("is_featured", true)
+      .neq("status", "cancelled")
+      .order("created_at", { ascending: false })
+      .limit(6),
     supabase
       .from("battles")
       .select(SELECT)
       .in("status", ["launching", "live", "closing"])
       .order("ends_at")
       .limit(24),
-    supabase.from("battles").select(SELECT).eq("status", "lobby").order("launch_at").limit(24),
+    supabase
+      .from("battles")
+      .select(SELECT)
+      .in("status", ["open", "lobby"])
+      .order("launch_at")
+      .limit(24),
     supabase
       .from("battles")
       .select(SELECT)
@@ -51,9 +64,10 @@ export async function listHomeBattles(): Promise<{
       .order("finished_at", { ascending: false })
       .limit(12),
   ]);
-  const error = live.error ?? upcoming.error ?? results.error;
+  const error = featured.error ?? live.error ?? upcoming.error ?? results.error;
   if (error) throw new Error(`lecture des battles impossible (${error.code})`);
   return {
+    featured: (featured.data ?? []).map(toSummary),
     live: (live.data ?? []).map(toSummary),
     upcoming: (upcoming.data ?? []).map(toSummary),
     results: (results.data ?? []).map(toSummary),

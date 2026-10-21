@@ -37,6 +37,15 @@ async function BattleSections({ dict, locale }: { dict: Dictionary; locale: Loca
   }
   return (
     <div className="flex flex-col gap-10">
+      {data.featured.length > 0 && (
+        <Section
+          title={dict.featured.title}
+          empty=""
+          battles={data.featured}
+          dict={dict}
+          locale={locale}
+        />
+      )}
       <Section
         title={dict.home.live}
         empty={dict.home.emptyLive}

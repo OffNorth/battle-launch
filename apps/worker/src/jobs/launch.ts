@@ -6,6 +6,7 @@ import { sendNonceTx } from "../chain";
 import type { Db } from "../db";
 import type { WorkerEnv } from "../env";
 import { log } from "../log";
+import { notifyWatchers } from "../push";
 
 /**
  * Lancement simultané à l'heure H. Pour chaque battle dont le lobby est fini :
@@ -144,4 +145,10 @@ async function launchOne(db: Db, connection: Connection, env: WorkerEnv, battleI
              on conflict do nothing`;
   });
   log("launch", `battle ${battleId} en direct jusqu'à ${endsAt.toISOString()}`);
+  const [a, b] = [sides.find((s) => s.side === "A")?.name, sides.find((s) => s.side === "B")?.name];
+  await notifyWatchers(db, battleId, {
+    title: `${a} vs ${b} is live`,
+    body: battle.theme,
+    url: `${env.APP_URL.replace(/\/+$/, "")}/en/battle/${battleId}`,
+  });
 }

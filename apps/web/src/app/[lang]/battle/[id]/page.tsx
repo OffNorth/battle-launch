@@ -8,6 +8,7 @@ import { Countdown } from "@/components/battle/countdown";
 import { BattleLiveRefresh } from "@/components/lobby/battle-live-refresh";
 import { CreatorLaunchPanel } from "@/components/lobby/creator-launch-panel";
 import { LiveBattle } from "@/components/live/live-battle";
+import { ReportButton } from "@/components/results/report-button";
 import { LobbyActions } from "@/components/lobby/lobby-actions";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries/en";
@@ -175,11 +176,20 @@ async function BattleView({
             createdBy={battle.createdBy}
             labels={dict.lobby}
             createLabels={dict.create}
+            pushLabels={dict.push}
             errors={dict.errors}
             locale={locale}
           />
         </section>
       )}
+      <div className="mt-10 flex justify-center">
+        <ReportButton
+          targetType="battle"
+          targetId={battle.id}
+          labels={dict.report}
+          errors={dict.errors}
+        />
+      </div>
     </article>
   );
 }

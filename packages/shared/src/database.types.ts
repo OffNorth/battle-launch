@@ -721,9 +721,41 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      leaderboard: {
+        Row: {
+          battles_played: number | null
+          display_name: string | null
+          id: string | null
+          wallet: string | null
+          wins: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      admin_hide_message: {
+        Args: { p_hidden: boolean; p_message: number }
+        Returns: undefined
+      }
+      admin_resolve_report: {
+        Args: {
+          p_report: number
+          p_status: Database["public"]["Enums"]["report_status"]
+        }
+        Returns: undefined
+      }
+      admin_set_banned: {
+        Args: { p_banned: boolean; p_profile: string }
+        Returns: undefined
+      }
+      admin_set_featured: {
+        Args: { p_battle: string; p_featured: boolean }
+        Returns: undefined
+      }
+      admin_update_setting: {
+        Args: { p_key: string; p_value: Json }
+        Returns: undefined
+      }
       accept_duel: {
         Args: { p_battle: string; p_side: Json }
         Returns: undefined
@@ -754,6 +786,10 @@ export type Database = {
           name: string
           similarity: number
         }[]
+      }
+      save_push_subscription: {
+        Args: { p_endpoint: string; p_keys: Json }
+        Returns: undefined
       }
       set_battle_watch: {
         Args: { p_battle: string; p_watch: boolean }

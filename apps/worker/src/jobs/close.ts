@@ -5,6 +5,7 @@ import type { Db } from "../db";
 import type { WorkerEnv } from "../env";
 import { log } from "../log";
 import { announceWinner } from "../notify";
+import { notifyWatchers } from "../push";
 import { indexBattle } from "./index-trades";
 
 /**
@@ -68,11 +69,17 @@ async function closeOne(db: Db, connection: Connection, env: WorkerEnv, battleId
   );
 
   const name = (side: "A" | "B") => sides.find((s) => s.side === side)?.name ?? side;
+  const url = `${env.APP_URL.replace(/\/+$/, "")}/en/battle/${battleId}`;
+  await notifyWatchers(db, battleId, {
+    title: winner ? `${name(winner)} wins` : "Draw",
+    body: battle.theme,
+    url,
+  });
   await announceWinner(env, {
     theme: battle.theme,
     winner: winner ? name(winner) : null,
     loser: winner ? name(winner === "A" ? "B" : "A") : null,
-    url: `${env.APP_URL.replace(/\/+$/, "")}/en/battle/${battleId}`,
+    url,
   });
 }
 

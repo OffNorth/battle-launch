@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries/en";
 import { createClient } from "@/lib/supabase/client";
+import { PushOptIn } from "./push-opt-in";
 
 type Me = { id: string; wallet: string; isAdmin: boolean } | null;
 
@@ -18,6 +19,7 @@ export function LobbyActions(props: {
   createdBy: string;
   labels: Dictionary["lobby"];
   createLabels: Dictionary["create"];
+  pushLabels: Dictionary["push"];
   errors: Dictionary["errors"];
   locale: Locale;
 }) {
@@ -157,6 +159,8 @@ export function LobbyActions(props: {
           </button>
         )}
       </div>
+
+      {watching && <PushOptIn labels={props.pushLabels} />}
 
       {error && (
         <p role="alert" className="text-sm text-destructive">

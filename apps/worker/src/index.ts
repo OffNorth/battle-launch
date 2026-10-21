@@ -9,6 +9,7 @@ import { runCleanup, runClosings } from "./jobs/close";
 import { runIndexer } from "./jobs/index-trades";
 import { runLaunches } from "./jobs/launch";
 import { log } from "./log";
+import { setupPush } from "./push";
 
 /**
  * Worker BATTLE LAUNCH : quatre tâches répétées par BullMQ (une file chacune, une exécution à
@@ -38,6 +39,8 @@ const db = createDb(
       env.BOOTSTRAP_DATABASE_URL,
     )),
 );
+
+await setupPush(redis, db, env.APP_URL);
 
 const TASKS: { name: string; everyMs: number; run: () => Promise<void> }[] = [
   { name: "launch", everyMs: 5_000, run: () => runLaunches(db, connection, env) },

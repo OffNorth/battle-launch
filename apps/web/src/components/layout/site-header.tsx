@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { SignInButton } from "@/components/auth/sign-in-button";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries/en";
+import { AccountLinks } from "./account-links";
 import { LangSwitcher, LangSwitcherStatic } from "./lang-switcher";
 
 export function SiteHeader({
@@ -33,9 +34,19 @@ export function SiteHeader({
             <Link href={`/${locale}/create`} className="hover:text-foreground">
               {dict.nav.create}
             </Link>
+            <Link href={`/${locale}/leaderboard`} className="hover:text-foreground">
+              {dict.nav.leaderboard}
+            </Link>
+            <Link href={`/${locale}/hall-of-fame`} className="hover:text-foreground">
+              {dict.nav.hallOfFame}
+            </Link>
             <Link href={`/${locale}/docs`} className="hover:text-foreground">
               {dict.nav.docs}
             </Link>
+            <AccountLinks
+              locale={locale}
+              labels={{ profile: dict.nav.profile, admin: dict.nav.admin }}
+            />
           </nav>
         </div>
         <div className="flex shrink-0 items-center gap-3">
@@ -51,6 +62,7 @@ export function SiteHeader({
         <nav className="flex gap-4">
           <Link href={`/${locale}`}>{dict.nav.battles}</Link>
           <Link href={`/${locale}/create`}>{dict.nav.create}</Link>
+          <Link href={`/${locale}/leaderboard`}>{dict.nav.leaderboard}</Link>
           <Link href={`/${locale}/docs`}>{dict.nav.docs}</Link>
         </nav>
         <Suspense fallback={<LangSwitcherStatic current={locale} label={dict.nav.language} />}>

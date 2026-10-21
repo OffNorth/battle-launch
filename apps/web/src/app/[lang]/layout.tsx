@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { lang } from "next/root-params";
+import { Analytics } from "@vercel/analytics/next";
 import { AnimatedBackground } from "@/components/layout/animated-background";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -47,6 +48,8 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
           <main className="flex flex-1 flex-col">{children}</main>
           <SiteFooter dict={dict} locale={locale} />
         </SolanaProvider>
+        {/* Statistiques de visite sans cookie ni données personnelles (Vercel Web Analytics). */}
+        <Analytics />
       </body>
     </html>
   );
