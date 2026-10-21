@@ -1,6 +1,7 @@
 import { lamportsToSolString } from "@battle/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { WinnerBurst } from "@/components/results/winner-burst";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
@@ -70,7 +71,9 @@ async function BattleView({
       <p className="text-center text-sm text-muted-foreground">{battle.theme}</p>
       <header className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
         <SideHeader side={a} accent="text-side-a" align="text-left" />
-        <span className="text-2xl font-black text-muted-foreground sm:text-4xl">{t.vs}</span>
+        <span className="vs-pulse text-2xl font-black text-muted-foreground sm:text-4xl">
+          {t.vs}
+        </span>
         <SideHeader
           side={b}
           accent="text-side-b"
@@ -103,22 +106,24 @@ async function BattleView({
         <p className="mt-6 text-center text-sm font-medium text-side-a">{dict.live.closing}</p>
       )}
       {battle.status === "finished" && (
-        <div className="mt-6 flex flex-col items-center gap-2 rounded-xl border border-side-a/50 bg-card p-4 text-center">
-          <p className="text-xl font-black text-side-a">
-            {battle.winnerSide
+        <WinnerBurst
+          winner={battle.winnerSide}
+          title={
+            battle.winnerSide
               ? dict.live.winnerBanner.replace(
                   "{name}",
                   battle.sides[battle.winnerSide]?.name ?? battle.winnerSide,
                 )
-              : dict.live.drawBanner}
-          </p>
+              : dict.live.drawBanner
+          }
+        >
           <Link
             href={`/${locale}/battle/${battle.id}/verify`}
             className="text-sm underline underline-offset-4"
           >
             {dict.live.verify}
           </Link>
-        </div>
+        </WinnerBurst>
       )}
       {["live", "closing", "finished"].includes(battle.status) && (
         <LiveSection

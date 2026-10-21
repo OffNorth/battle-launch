@@ -23,11 +23,12 @@ export function BattleCard({
   return (
     <Link
       href={`/${locale}/battle/${battle.id}`}
-      className="group flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 transition hover:-translate-y-0.5 hover:border-side-a/50 hover:bg-card-raised focus-visible:outline-2 focus-visible:outline-side-a"
+      className={`card-glow reveal group flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 transition duration-300 hover:-translate-y-1 hover:bg-card-raised focus-visible:outline-2 focus-visible:outline-side-a ${battle.status === "live" ? "is-live" : ""}`}
     >
       <div className="flex items-center justify-between gap-2 text-xs">
         <span className="truncate font-medium text-muted-foreground">{battle.theme}</span>
-        <span className="shrink-0 rounded-full border border-border bg-card-raised px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider">
+        <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card-raised px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider">
+          {battle.status === "live" && <span aria-hidden className="live-dot" />}
           {t.status[battle.status]}
         </span>
       </div>

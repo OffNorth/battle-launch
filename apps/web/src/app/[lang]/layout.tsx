@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
 import { lang } from "next/root-params";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { AnimatedBackground } from "@/components/layout/animated-background";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -44,11 +45,11 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
       suppressHydrationWarning
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        {/* Applique le thème choisi avant le premier affichage (évite un flash). */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
-      </head>
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
+        {/* Applique le thème choisi avant l'hydratation (évite un flash ; voir theme-toggle.tsx). */}
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_INIT}
+        </Script>
         <AnimatedBackground />
         <SolanaProvider rpcUrl={solana.NEXT_PUBLIC_SOLANA_RPC_URL}>
           <SiteHeader dict={dict} locale={locale} cluster={solana.NEXT_PUBLIC_SOLANA_CLUSTER} />

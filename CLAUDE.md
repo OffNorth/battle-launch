@@ -178,8 +178,16 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
   Couleurs uniquement via les variables de `globals.css` (`--side-a`, `--side-b`, `--on-side` = texte sur une couleur de camp :
   ne jamais écrire `text-white` sur un fond de camp). Les graphiques lisent les variables `--chart-*` (hexadécimal) et se
   recolorent au changement de thème. Les images de partage (OG, image du token) ont encore des couleurs fixes vertes.
-  Le fond animé est en CSS pur (transform/opacity), coupé si l'appareil demande moins d'animations ; le navigateur
-  intégré de Claude a ce réglage actif, donc les animations y paraissent immobiles (normal).
+- **Animations** (23/10/2026, demande « animations de fou ») : aurore conique qui tourne au fond, arène de l'accueil
+  (`home/arena.tsx`, **CSS pur** `.arena-*` : une seule horloge de 3,2 s, choc à 42 %, charge en unités `cqw` pour que les
+  orbes se touchent pile au centre à toute largeur), titre mot par mot avec fin en dégradé, boutons à reflet, cartes à
+  bordure conique tournante (`@property --spin`, permanente pour une battle en direct), point « live », barre de domination
+  à reflets et étincelle, bannière du gagnant avec confettis (`results/winner-burst.tsx`), apparition au défilement
+  (`animation-timeline: view()`). Uniquement transform/opacity/background-position ; tout est coupé si l'appareil demande
+  moins d'animations. Le navigateur intégré de Claude a ce réglage actif : les animations y paraissent immobiles ; pour
+  les voir, captures avec Playwright + Edge (réglage normal). **Valeurs calculées (angles, positions) arrondies** et pas de
+  raccourci `background` dans un `style` animé par Framer Motion : sinon écart serveur/navigateur (erreur d'hydratation).
+  Script du thème : `next/script` `strategy="beforeInteractive"` (une balise `<script>` brute dans le layout donne une erreur React).
 - **Serveur local** : après une modification de `globals.css`, le serveur de dev ne recompile pas toujours la feuille ;
   le redémarrer.
 

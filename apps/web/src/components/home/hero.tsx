@@ -2,12 +2,14 @@
 
 import { MotionConfig, motion } from "framer-motion";
 import Link from "next/link";
+import { Arena } from "./arena";
 
 type HeroText = { kicker: string; title: string; subtitle: string; ctaDocs: string };
 
 /**
- * Bandeau d'accueil, dans l'esprit de deuslaunch : grand titre serré aligné à gauche, une ligne
- * d'accent, deux boutons en pilule, et à droite le duel A contre B. Les propriétés d'animation
+ * Bandeau d'accueil, dans l'esprit de deuslaunch : grand titre serré aligné à gauche (mots qui
+ * apparaissent un à un, fin du titre en dégradé qui brille), deux boutons en pilule, et à droite
+ * l'arène animée (arena.tsx). Les propriétés d'animation
  * sont les mêmes au rendu serveur et dans le navigateur (sinon erreur d'hydratation) ;
  * `reducedMotion="user"` coupe les déplacements quand l'utilisateur le demande à son système.
  */
@@ -28,12 +30,26 @@ export function Hero({
         <div aria-hidden className="arena-glow pointer-events-none absolute inset-0" />
         <div className="relative">
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-side-a">{text.kicker}</p>
-          <h1 className="display mt-4 max-w-2xl text-4xl sm:text-6xl">{text.title}</h1>
+          <h1 className="display mt-4 max-w-2xl text-4xl sm:text-6xl">
+            {text.title.split(" ").map((word, i) => (
+              <motion.span
+                key={`${word}-${i}`}
+                className="mr-[0.25em] inline-block"
+                initial={{ opacity: 0, y: 28, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ duration: 0.5, delay: 0.08 * i, ease: "easeOut" }}
+              >
+                <span className={i >= text.title.split(" ").length - 2 ? "shine-text" : undefined}>
+                  {word}
+                </span>
+              </motion.span>
+            ))}
+          </h1>
           <p className="mt-5 max-w-xl text-base text-muted-foreground">{text.subtitle}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href={createHref}
-              className="inline-flex h-11 items-center rounded-full bg-side-a px-6 text-sm font-medium text-on-side transition hover:opacity-90"
+              className="btn-shine inline-flex h-11 items-center rounded-full bg-side-a px-6 text-sm font-medium text-on-side transition hover:scale-[1.03]"
             >
               {createLabel}
             </Link>
@@ -45,35 +61,14 @@ export function Hero({
             </Link>
           </div>
         </div>
-        <div
-          aria-hidden
-          className="relative flex items-center justify-center gap-4 rounded-3xl border border-border bg-card p-8 text-6xl font-semibold tracking-tighter sm:text-7xl"
+        <motion.div
+          className="relative"
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
         >
-          <motion.span
-            initial={{ x: -60, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="text-side-a drop-shadow-[0_0_24px_var(--side-a)]"
-          >
-            A
-          </motion.span>
-          <motion.span
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.45, type: "spring" }}
-            className="text-xl text-muted-foreground sm:text-2xl"
-          >
-            VS
-          </motion.span>
-          <motion.span
-            initial={{ x: 60, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="text-side-b drop-shadow-[0_0_24px_var(--side-b)]"
-          >
-            B
-          </motion.span>
-        </div>
+          <Arena />
+        </motion.div>
       </section>
     </MotionConfig>
   );

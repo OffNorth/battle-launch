@@ -299,6 +299,616 @@
   }
 }
 
+/*
+ * ── Animations « de fou » (23/10/2026) ──────────────────────────────────────
+ * Aurore du fond, arène de l'accueil, titre qui brille, boutons à reflet, cartes à bordure
+ * lumineuse tournante, point « live » qui pulse, barre de domination électrique, bannière du
+ * gagnant, apparition au défilement. Uniquement transform / opacity / background-position
+ * (rapide) ; tout est coupé plus bas si l'appareil demande moins d'animations.
+ */
+
+/* Angle animable pour les bordures tournantes (sinon le dégradé conique ne s'anime pas). */
+@property --spin {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Aurore : grand dégradé conique flou qui tourne derrière tout le site. */
+.bg-aurora {
+  position: absolute;
+  left: 50%;
+  top: -60vmax;
+  width: 140vmax;
+  height: 140vmax;
+  margin-left: -70vmax;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    color-mix(in oklch, var(--side-a) 22%, transparent) 60deg,
+    transparent 120deg,
+    color-mix(in oklch, var(--side-b) 22%, transparent) 200deg,
+    transparent 260deg,
+    color-mix(in oklch, var(--side-a) 14%, transparent) 320deg,
+    transparent 360deg
+  );
+  filter: blur(80px);
+  opacity: var(--blob-opacity, 0.45);
+  animation: spin-slow 60s linear infinite;
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Arène : lignes de vitesse qui défilent (le reste de l'arène : plus bas). */
+.speed-lines {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 46px,
+    color-mix(in oklch, var(--foreground) 7%, transparent) 46px 48px
+  );
+  mask-image: linear-gradient(90deg, black, transparent 35%, transparent 65%, black);
+  animation: speed 0.9s linear infinite;
+}
+
+@keyframes speed {
+  to {
+    background-position: 48px 0;
+  }
+}
+
+/* VS : double image décalée aux couleurs des camps (effet glitch). */
+.vs-glitch::before,
+.vs-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  opacity: 0.7;
+}
+.vs-glitch::before {
+  color: var(--side-a);
+  animation: glitch-a 3.2s steps(2) infinite;
+}
+.vs-glitch::after {
+  color: var(--side-b);
+  animation: glitch-b 3.2s steps(2) infinite;
+}
+
+@keyframes glitch-a {
+  0%,
+  40%,
+  56%,
+  100% {
+    transform: translate(0, 0);
+  }
+  42% {
+    transform: translate(-4px, 2px);
+  }
+  48% {
+    transform: translate(3px, -2px);
+  }
+}
+
+@keyframes glitch-b {
+  0%,
+  40%,
+  56%,
+  100% {
+    transform: translate(0, 0);
+  }
+  44% {
+    transform: translate(4px, -1px);
+  }
+  50% {
+    transform: translate(-3px, 2px);
+  }
+}
+
+/* VS de la page d'une battle : battement de cœur. */
+.vs-pulse {
+  display: inline-block;
+  animation: heartbeat 1.6s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%,
+  60%,
+  100% {
+    transform: scale(1);
+  }
+  10% {
+    transform: scale(1.18);
+  }
+  20% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.1);
+  }
+}
+
+/* Fin du titre : dégradé des deux camps qui glisse. */
+.shine-text {
+  background: linear-gradient(
+    90deg,
+    var(--side-a),
+    var(--side-b),
+    var(--foreground),
+    var(--side-a)
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 6s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position: 300% 0;
+  }
+}
+
+/* Bouton principal : reflet qui traverse au survol. */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.45) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+}
+.btn-shine:hover::after {
+  transform: translateX(120%);
+}
+
+/* Cartes : bordure lumineuse qui tourne au survol, en permanence pour une battle en direct. */
+.card-glow {
+  position: relative;
+  isolation: isolate;
+}
+.card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--spin),
+    transparent 0deg,
+    var(--side-a) 70deg,
+    transparent 140deg,
+    var(--side-b) 250deg,
+    transparent 320deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s;
+  animation: border-spin 4s linear infinite;
+}
+.card-glow:hover::before,
+.card-glow.is-live::before {
+  opacity: 1;
+}
+.card-glow:hover {
+  box-shadow: 0 12px 40px -12px color-mix(in oklch, var(--side-a) 45%, transparent);
+}
+
+@keyframes border-spin {
+  to {
+    --spin: 360deg;
+  }
+}
+
+/* Bordure tournante de la bannière du gagnant (couleur du gagnant dans --glow). */
+.glow-border::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--spin),
+    var(--glow),
+    transparent 30%,
+    var(--glow) 50%,
+    transparent 80%,
+    var(--glow)
+  );
+  animation: border-spin 3s linear infinite;
+  filter: drop-shadow(0 0 12px var(--glow));
+}
+
+/* Point « en direct » qui pulse. */
+.live-dot {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--down);
+}
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--down);
+  animation: ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* Barre de domination : reflets qui courent dans chaque camp, étincelle au point de contact. */
+.bar-flow,
+.bar-flow-b {
+  background-image: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.35) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: bar-flow 2.4s linear infinite;
+}
+.bar-flow {
+  background-color: var(--side-a);
+}
+.bar-flow-b {
+  background-color: color-mix(in oklch, var(--side-b) 70%, transparent);
+  animation-direction: reverse;
+}
+
+@keyframes bar-flow {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.bar-spark {
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #fff 0 25%, var(--side-a) 45%, transparent 70%);
+  box-shadow:
+    0 0 12px var(--side-a),
+    0 0 24px var(--side-b);
+  animation: crackle 0.5s steps(3) infinite;
+}
+
+@keyframes crackle {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  33% {
+    transform: scale(1.5) rotate(40deg);
+    opacity: 0.7;
+  }
+  66% {
+    transform: scale(0.9) rotate(-30deg);
+    opacity: 1;
+  }
+}
+
+/* Apparition au défilement (navigateurs récents ; ailleurs, visible tout de suite). */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-aurora,
+  .speed-lines,
+  .vs-glitch::before,
+  .vs-glitch::after,
+  .vs-pulse,
+  .shine-text,
+  .card-glow::before,
+  .glow-border::before,
+  .live-dot::after,
+  .bar-flow,
+  .bar-flow-b,
+  .bar-spark,
+  .reveal {
+    animation: none;
+  }
+  .btn-shine::after {
+    display: none;
+  }
+}
+
+/*
+ * Arène de l'accueil (components/home/arena.tsx). Une seule horloge de 3,2 s pour tout :
+ * charge (0 à 30 %), choc à 42 % (contact des orbes = flash, ondes, étincelles, VS), recul.
+ * --orb : diamètre d'une orbe ; --gap : marge au bord ; la charge amène le bord de l'orbe au
+ * centre de l'arène (50cqw), quelle que soit la largeur de l'écran.
+ */
+.arena-panel {
+  --cycle: 3.2s;
+  --orb: 6rem;
+  --gap: 7cqw;
+  container-type: inline-size;
+  background:
+    radial-gradient(
+      60% 80% at 50% 50%,
+      color-mix(in oklch, var(--foreground) 5%, transparent),
+      transparent 70%
+    ),
+    var(--card);
+}
+@media (min-width: 640px) {
+  .arena-panel {
+    --orb: 7rem;
+  }
+}
+
+.arena-orb {
+  --travel: calc(50cqw - var(--gap) - var(--orb) + 4px);
+  position: absolute;
+  top: 50%;
+  width: var(--orb);
+  height: var(--orb);
+  margin-top: calc(var(--orb) / -2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.arena-orb-a {
+  --c: var(--side-a);
+  --dir: 1;
+  left: var(--gap);
+  animation: orb-charge var(--cycle) ease-in-out infinite;
+}
+.arena-orb-b {
+  --c: var(--side-b);
+  --dir: -1;
+  right: var(--gap);
+  animation: orb-charge var(--cycle) ease-in-out infinite;
+}
+
+@keyframes orb-charge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(calc(-14px * var(--dir)));
+  }
+  30% {
+    transform: translateX(calc(-6px * var(--dir)));
+    animation-timing-function: cubic-bezier(0.6, 0, 1, 0.6);
+  }
+  42% {
+    transform: translateX(calc(var(--travel) * var(--dir))) scaleX(0.9);
+  }
+  50% {
+    transform: translateX(calc(var(--travel) * 0.7 * var(--dir)));
+  }
+}
+
+.arena-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--c);
+  filter: blur(24px);
+  opacity: 0.4;
+  animation: halo 1.6s ease-in-out infinite;
+}
+@keyframes halo {
+  50% {
+    opacity: 0.75;
+    transform: scale(1.25);
+  }
+}
+
+.arena-ring {
+  position: absolute;
+  inset: -12px;
+  border-radius: 9999px;
+  border: 2px dashed var(--c);
+  animation: spin-slow 6s linear infinite;
+}
+.arena-orb-b .arena-ring {
+  animation-direction: reverse;
+}
+
+.arena-core {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-size: calc(var(--orb) * 0.5);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  color: var(--on-side);
+  background: radial-gradient(
+    circle at 35% 30%,
+    color-mix(in oklch, var(--c) 55%, white),
+    var(--c) 60%
+  );
+  box-shadow:
+    0 0 40px var(--c),
+    inset 0 -8px 24px rgb(0 0 0 / 0.35);
+}
+
+/* Choc : flash blanc, deux ondes, étincelles. Invisibles hors du moment du choc. */
+.arena-flash,
+.arena-wave {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 9999px;
+  opacity: 0;
+}
+.arena-flash {
+  width: 10rem;
+  height: 10rem;
+  margin: -5rem 0 0 -5rem;
+  background: white;
+  filter: blur(24px);
+  animation: flash var(--cycle) ease-out infinite;
+}
+@keyframes flash {
+  0%,
+  41% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  43% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  55%,
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+.arena-wave {
+  width: 6rem;
+  height: 6rem;
+  margin: -3rem 0 0 -3rem;
+  border: 2px solid color-mix(in oklch, var(--foreground) 70%, transparent);
+  animation: wave var(--cycle) ease-out infinite;
+}
+.arena-wave-2 {
+  animation-delay: 0.18s;
+}
+@keyframes wave {
+  0%,
+  41.9% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  42% {
+    opacity: 0.9;
+    transform: scale(0.6);
+  }
+  64%,
+  100% {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+
+.arena-spark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  animation: spark var(--cycle) ease-out infinite;
+}
+.arena-spark > span {
+  display: block;
+  width: 12px;
+  height: 4px;
+  border-radius: 9999px;
+  transform: rotate(var(--sd));
+  box-shadow: 0 0 8px currentColor;
+}
+@keyframes spark {
+  0%,
+  41.9% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  42% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  62%,
+  100% {
+    opacity: 0;
+    transform: translate(var(--sx), var(--sy));
+  }
+}
+
+.arena-vs {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  margin-left: -1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  color: var(--foreground);
+  animation: vs-hit var(--cycle) ease-out infinite;
+}
+@keyframes vs-hit {
+  0%,
+  42%,
+  100% {
+    transform: scale(1) rotate(0);
+  }
+  44% {
+    transform: scale(1.5) rotate(-6deg);
+  }
+  50% {
+    transform: scale(0.95) rotate(4deg);
+  }
+  56% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arena-orb-a,
+  .arena-orb-b,
+  .arena-halo,
+  .arena-ring,
+  .arena-flash,
+  .arena-wave,
+  .arena-spark,
+  .arena-vs {
+    animation: none;
+  }
+}
+
 /* Bouton de wallet-adapter aux couleurs du site, compact sur mobile. */
 .wallet-adapter-button.wallet-adapter-button-trigger {
   height: 2.25rem;

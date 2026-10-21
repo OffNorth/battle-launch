@@ -19,6 +19,7 @@ const BUBBLES = [
 export function AnimatedBackground() {
   return (
     <div aria-hidden className="bg-stage">
+      <div className="bg-aurora" />
       <div className="bg-blob bg-blob-1" />
       <div className="bg-blob bg-blob-2" />
       <div className="bg-blob bg-blob-3" />

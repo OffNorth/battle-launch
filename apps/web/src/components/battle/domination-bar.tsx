@@ -1,4 +1,7 @@
-/** Barre de domination : part du camp A (vert) contre le camp B (vert foncé), en pourcentage. */
+/**
+ * Barre de domination : part du camp A contre le camp B, en pourcentage. Reflets qui courent dans
+ * chaque camp et étincelle au point de contact (styles .bar-* de globals.css).
+ */
 export function DominationBar({
   percentA,
   labelA,
@@ -11,7 +14,7 @@ export function DominationBar({
   const a = Math.min(100, Math.max(0, percentA));
   return (
     <div
-      className="relative h-2.5 w-full overflow-hidden rounded-full bg-side-b/70"
+      className="bar-flow-b relative h-2.5 w-full overflow-visible rounded-full bg-side-b/70"
       role="meter"
       aria-valuemin={0}
       aria-valuemax={100}
@@ -19,8 +22,14 @@ export function DominationBar({
       aria-label={`${labelA} ${a}% – ${labelB} ${Math.round((100 - a) * 10) / 10}%`}
     >
       <div
-        className="h-full bg-side-a shadow-[0_0_12px] shadow-side-a transition-[width] duration-700 ease-out"
+        className="bar-flow h-full bg-side-a shadow-[0_0_12px] shadow-side-a transition-[width] duration-700 ease-out"
         style={{ width: `${a}%` }}
+      />
+      {/* Point de contact des deux camps : une étincelle qui crépite (glisse avec la barre). */}
+      <span
+        aria-hidden
+        className="bar-spark absolute top-1/2 transition-[left] duration-700 ease-out"
+        style={{ left: `${a}%` }}
       />
     </div>
   );
