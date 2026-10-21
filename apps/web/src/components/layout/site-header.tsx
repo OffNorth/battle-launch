@@ -5,6 +5,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries/en";
 import { AccountLinks } from "./account-links";
 import { LangSwitcher, LangSwitcherStatic } from "./lang-switcher";
+import { ThemeToggle } from "./theme-toggle";
 
 export function SiteHeader({
   dict,
@@ -16,18 +17,19 @@ export function SiteHeader({
   cluster: string;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
         <div className="flex min-w-0 items-center gap-4">
-          <Link href={`/${locale}`} className="shrink-0 font-black tracking-tight">
-            <span className="text-side-a">BATTLE</span> <span className="text-side-b">LAUNCH</span>
+          <Link href={`/${locale}`} className="shrink-0 text-lg font-semibold tracking-tight">
+            <span className="text-side-a">battle</span>
+            <span className="text-foreground">launch</span>
           </Link>
           {cluster === "devnet" && (
-            <span className="hidden rounded-full border border-side-b/50 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-side-b sm:inline">
+            <span className="hidden rounded-full border border-side-a/40 bg-side-a/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-side-a sm:inline">
               {dict.nav.devnet}
             </span>
           )}
-          <nav className="hidden items-center gap-4 text-sm text-muted-foreground md:flex">
+          <nav className="hidden items-center gap-5 text-sm font-medium text-muted-foreground md:flex">
             <Link href={`/${locale}`} className="hover:text-foreground">
               {dict.nav.battles}
             </Link>
@@ -55,10 +57,11 @@ export function SiteHeader({
               <LangSwitcher current={locale} label={dict.nav.language} />
             </Suspense>
           </div>
+          <ThemeToggle labelLight={dict.nav.themeLight} labelDark={dict.nav.themeDark} />
           <SignInButton labels={dict.auth} />
         </div>
       </div>
-      <div className="flex items-center justify-between gap-4 border-t border-border/40 px-4 py-2 text-sm text-muted-foreground md:hidden">
+      <div className="flex items-center justify-between gap-4 border-t border-border px-4 py-2 text-sm text-muted-foreground md:hidden">
         <nav className="flex gap-4">
           <Link href={`/${locale}`}>{dict.nav.battles}</Link>
           <Link href={`/${locale}/create`}>{dict.nav.create}</Link>

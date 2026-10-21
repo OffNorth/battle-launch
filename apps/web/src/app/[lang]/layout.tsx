@@ -1,25 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
 import { lang } from "next/root-params";
 import { Analytics } from "@vercel/analytics/next";
 import { AnimatedBackground } from "@/components/layout/animated-background";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { THEME_INIT } from "@/components/layout/theme-toggle";
 import { SolanaProvider } from "@/components/providers/solana-provider";
 import { LOCALES } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/get-dictionary";
 import { solanaPublicEnv } from "@/lib/env";
 import "../globals.css";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export async function generateStaticParams() {
   return LOCALES.map((l) => ({ lang: l }));
 }
 
-/** Couleur de la barre du navigateur sur mobile : blanc du thème. */
-export const viewport: Viewport = { themeColor: "#fbfefb" };
+/** Couleur de la barre du navigateur sur mobile : fond du thème sombre (le défaut). */
+export const viewport: Viewport = { themeColor: "#07080b" };
 
 export async function generateMetadata(): Promise<Metadata> {
   const dict = await getDictionary();
@@ -39,8 +40,14 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      data-theme="dark"
+      suppressHydrationWarning
+      className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Applique le thème choisi avant le premier affichage (évite un flash). */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
         <AnimatedBackground />
         <SolanaProvider rpcUrl={solana.NEXT_PUBLIC_SOLANA_RPC_URL}>

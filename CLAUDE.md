@@ -139,8 +139,7 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
       essayer une vraie connexion avec Phantom en devnet
 - [x] Étape 2 : `packages/shared/src/battle/` score, anti-triche, snapshot (26 tests) ; migration `20261020204614_regles_du_score`
       (poids en points de base, règles anti-triche figées par battle)
-- [x] Étape 3 : site de base — thème **vert et blanc** depuis le 21/10/2026 (fond blanc, camp A vert vif, camp B vert
-      très foncé ; variables dans `globals.css`), fond animé en CSS (`animated-background.tsx`), shadcn/ui, FR/EN sous `/fr` et
+- [x] Étape 3 : site de base — thèmes sombre (défaut) et vert et blanc, bouton de bascule (voir §10 ; variables dans `globals.css`), fond animé en CSS (`animated-background.tsx`), shadcn/ui, FR/EN sous `/fr` et
       `/en` (`src/i18n`, redirection selon la langue du navigateur dans `proxy.ts`), accueil (en direct / bientôt / résultats
       lus dans Supabase), `/docs` (risques, déroulement, formule, anti-triche, vérification, FAQ). Vérifié en local, mobile
       375 px sans défilement horizontal, console sans erreur
@@ -172,8 +171,13 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
 
 ## 10. Pièges connus
 
-- **Thème** : l'utilisateur a remplacé le « néon sombre » du cahier des charges par un thème **vert et blanc** avec des
-  animations de fond (21/10/2026). Couleurs uniquement via les variables de `globals.css` (`--side-a`, `--side-b`, …).
+- **Thèmes** (23/10/2026) : **sombre par défaut**, dans l'esprit de deuslaunch (fond `#07080b`, cartes `#0d0f13` arrondies à
+  16 px, bordures blanches à 7 %, accent turquoise, camp A turquoise, camp B violet, police Inter, titres serrés `.display`,
+  boutons en pilule), et **clair vert et blanc** (demandé le 21/10/2026). Le bouton soleil/lune de l'en-tête bascule
+  (`theme-toggle.tsx`, attribut `data-theme` de `<html>`, choix gardé en `localStorage`, script `THEME_INIT` avant l'affichage).
+  Couleurs uniquement via les variables de `globals.css` (`--side-a`, `--side-b`, `--on-side` = texte sur une couleur de camp :
+  ne jamais écrire `text-white` sur un fond de camp). Les graphiques lisent les variables `--chart-*` (hexadécimal) et se
+  recolorent au changement de thème. Les images de partage (OG, image du token) ont encore des couleurs fixes vertes.
   Le fond animé est en CSS pur (transform/opacity), coupé si l'appareil demande moins d'animations ; le navigateur
   intégré de Claude a ce réglage actif, donc les animations y paraissent immobiles (normal).
 - **Serveur local** : après une modification de `globals.css`, le serveur de dev ne recompile pas toujours la feuille ;

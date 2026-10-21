@@ -463,7 +463,7 @@ export function CreateWizard({ dict, locale }: { dict: Dictionary; locale: Local
           <button
             type="button"
             onClick={next}
-            className="rounded-md bg-side-a px-5 py-2 text-sm font-semibold text-white"
+            className="rounded-md bg-side-a px-5 py-2 text-sm font-semibold text-on-side"
           >
             {t.next}
           </button>
@@ -472,7 +472,7 @@ export function CreateWizard({ dict, locale }: { dict: Dictionary; locale: Local
             type="button"
             onClick={() => void submit()}
             disabled={!acceptRisks || busy || signedIn !== true}
-            className="rounded-md bg-side-a px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            className="rounded-md bg-side-a px-5 py-2 text-sm font-semibold text-on-side disabled:opacity-50"
           >
             {busy ? t.submitting : t.submit}
           </button>

@@ -93,7 +93,7 @@ export function SignInButton({ labels }: { labels: SignInLabels }) {
         type="button"
         onClick={() => void signIn()}
         disabled={busy}
-        className="rounded-md bg-side-a px-4 py-2 text-sm font-semibold text-white hover:bg-side-a/90 disabled:opacity-60"
+        className="rounded-full bg-side-a px-4 py-2 text-sm font-medium text-on-side hover:bg-side-a/90 disabled:opacity-60"
       >
         {busy ? labels.checkWallet : labels.signIn}
       </button>

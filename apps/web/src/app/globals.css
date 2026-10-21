@@ -2,16 +2,20 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is([data-theme="dark"] *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-geist-sans);
+  --font-heading: var(--font-inter);
   --color-side-a: var(--side-a);
   --color-side-b: var(--side-b);
+  --color-on-side: var(--on-side);
+  --color-card-raised: var(--card-raised);
+  --color-up: var(--up);
+  --color-down: var(--down);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -51,17 +55,73 @@
 }
 
 /*
- * Thème vert et blanc (choix de l'utilisateur, 21/10/2026) : fond blanc, vert en couleur
- * principale. Camp A = vert vif, camp B = vert très foncé (« encre ») pour que les deux camps
- * restent bien distincts sur fond blanc. Textes blancs sur les deux couleurs de camp : contraste
- * supérieur à 4,5:1. Pour changer les couleurs, ne toucher qu'ici (variables).
+ * Deux thèmes, choisis par l'attribut data-theme de <html> (bouton en haut à droite, souvenu par
+ * le navigateur ; sombre par défaut) :
+ * - SOMBRE (défaut) : inspiré de deuslaunch (23/10/2026) : fond presque noir, cartes #0d0f13
+ *   arrondies à 16 px, bordures blanches à 7 %, accent turquoise. Camp A = turquoise, camp B = violet.
+ * - CLAIR : le thème vert et blanc demandé le 21/10/2026 (camp A = vert vif, camp B = vert très foncé).
+ * --on-side = couleur du texte posé sur une couleur de camp (sombre sur les teintes vives du thème
+ * sombre, blanc sur les verts du thème clair : contraste > 4,5:1 dans les deux cas).
+ * --chart-* sont en hexadécimal : lightweight-charts ne lit pas oklch().
+ * Pour changer les couleurs, ne toucher qu'ici.
  */
 :root {
+  --side-a: #22c7b8;
+  --side-b: #a78bfa;
+  --on-side: #04120f;
+  --up: #2bd58c;
+  --down: #ff5c7a;
+  --background: #07080b;
+  --foreground: #eef0f3;
+  --card: #0d0f13;
+  --card-raised: #14171d;
+  --card-foreground: #eef0f3;
+  --popover: #0d0f13;
+  --popover-foreground: #eef0f3;
+  --primary: #22c7b8;
+  --primary-foreground: #021a18;
+  --secondary: #14171d;
+  --secondary-foreground: #eef0f3;
+  --muted: #14171d;
+  --muted-foreground: #8b909a;
+  --accent: #14171d;
+  --accent-foreground: #eef0f3;
+  --destructive: #ff5c7a;
+  --border: #ffffff12;
+  --input: #ffffff1f;
+  --ring: #22c7b8;
+  --chart-1: #22c7b8;
+  --chart-2: #a78bfa;
+  --chart-3: #2bd58c;
+  --chart-4: #5ab8f0;
+  --chart-5: #ff5c7a;
+  --chart-text: #8b909a;
+  --chart-grid: #ffffff10;
+  --chart-side-a: #22c7b8;
+  --chart-side-b: #a78bfa;
+  --chart-down: #ff5c7a;
+  --radius: 1rem;
+  --sidebar: #0d0f13;
+  --sidebar-foreground: #eef0f3;
+  --sidebar-primary: #22c7b8;
+  --sidebar-primary-foreground: #021a18;
+  --sidebar-accent: #14171d;
+  --sidebar-accent-foreground: #eef0f3;
+  --sidebar-border: #ffffff12;
+  --sidebar-ring: #22c7b8;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
   --side-a: oklch(0.56 0.16 150);
   --side-b: oklch(0.27 0.05 160);
+  --on-side: #ffffff;
+  --up: #0e9f63;
+  --down: #df3459;
   --background: oklch(0.995 0.004 150);
   --foreground: oklch(0.24 0.04 160);
   --card: oklch(1 0 0 / 82%);
+  --card-raised: oklch(0.97 0.015 150);
   --card-foreground: oklch(0.24 0.04 160);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.24 0.04 160);
@@ -82,7 +142,11 @@
   --chart-3: oklch(0.72 0.15 135);
   --chart-4: oklch(0.65 0.1 180);
   --chart-5: oklch(0.55 0.2 27);
-  --radius: 0.75rem;
+  --chart-text: #52665d;
+  --chart-grid: #16653414;
+  --chart-side-a: #16a34a;
+  --chart-side-b: #14532d;
+  --chart-down: #dc2626;
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.24 0.04 160);
   --sidebar-primary: oklch(0.56 0.16 150);
@@ -92,6 +156,13 @@
   --sidebar-border: oklch(0.9 0.03 150);
   --sidebar-ring: oklch(0.56 0.16 150);
   color-scheme: light;
+}
+
+/* Titres : tout serrés, comme les grands titres de deuslaunch. */
+.display {
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  line-height: 1.05;
 }
 
 /* Halo derrière le bandeau d'accueil. */
@@ -143,7 +214,7 @@
   height: 46vmax;
   border-radius: 9999px;
   filter: blur(60px);
-  opacity: 0.75;
+  opacity: var(--blob-opacity, 0.45);
   will-change: transform;
 }
 
@@ -161,7 +232,11 @@
 .bg-blob-2 {
   right: -16vmax;
   top: 10vmax;
-  background: radial-gradient(circle, oklch(0.85 0.12 140 / 55%), transparent 65%);
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--side-b) 40%, transparent),
+    transparent 65%
+  );
   animation: bg-float-2 32s ease-in-out infinite alternate;
 }
 
@@ -170,7 +245,7 @@
   left: 22vw;
   background: radial-gradient(
     circle,
-    color-mix(in oklch, var(--side-b) 18%, transparent),
+    color-mix(in oklch, var(--side-a) 30%, transparent),
     transparent 65%
   );
   animation: bg-float-3 38s ease-in-out infinite alternate;
@@ -184,6 +259,11 @@
   background: color-mix(in oklch, var(--side-a) 8%, transparent);
   animation: bg-rise linear infinite;
   opacity: 0;
+}
+
+/* Thème clair : taches plus présentes sur fond blanc. */
+:root[data-theme="light"] {
+  --blob-opacity: 0.75;
 }
 
 @keyframes bg-grid-drift {
@@ -242,9 +322,10 @@
 .wallet-adapter-button.wallet-adapter-button-trigger {
   height: 2.25rem;
   padding: 0 0.875rem;
-  border-radius: calc(var(--radius) * 0.8);
+  border-radius: 9999px;
   background: var(--side-a);
-  font-family: var(--font-geist-sans);
+  color: var(--on-side);
+  font-family: var(--font-inter);
   font-size: 0.875rem;
   line-height: 1;
   white-space: nowrap;

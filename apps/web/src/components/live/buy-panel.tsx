@@ -78,7 +78,7 @@ export function BuyPanel(props: {
         type="button"
         onClick={() => void buy()}
         disabled={busy}
-        className={`${accent} rounded-md px-3 py-2 text-sm font-semibold text-white disabled:opacity-60`}
+        className={`${accent} rounded-md px-3 py-2 text-sm font-semibold text-on-side disabled:opacity-60`}
       >
         {busy ? labels.buying : labels.buy.replace("{name}", props.name)}
       </button>

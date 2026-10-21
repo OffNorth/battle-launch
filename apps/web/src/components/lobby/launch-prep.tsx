@@ -157,7 +157,7 @@ export function LaunchPrep(props: {
         type="button"
         onClick={() => void prepare()}
         disabled={step !== null}
-        className="rounded-md bg-side-a px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
+        className="rounded-md bg-side-a px-5 py-2 text-sm font-semibold text-on-side disabled:opacity-60"
       >
         {step ?? labels.prepare}
       </button>

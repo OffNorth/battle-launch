@@ -23,17 +23,27 @@ export function DuelCharts(props: { candles: CandlePoint[]; labelA: string; labe
 
   useEffect(() => {
     if (!refA.current || !refB.current) return;
-    // Couleurs en hexadécimal : la bibliothèque ne lit pas les couleurs lab()/oklch() du thème.
+    // Couleurs en hexadécimal (variables --chart-* du thème) : la bibliothèque ne lit pas oklch().
+    const css = (name: string) =>
+      getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const palette = () => ({
+      text: css("--chart-text"),
+      grid: css("--chart-grid"),
+      a: css("--chart-side-a"),
+      b: css("--chart-side-b"),
+      down: css("--chart-down"),
+    });
     const make = (el: HTMLDivElement, up: string): [IChartApi, ISeriesApi<"Candlestick">] => {
+      const c = palette();
       const chart = createChart(el, {
         autoSize: true,
         height: 240,
         layout: {
           background: { type: ColorType.Solid, color: "transparent" },
-          textColor: "#52665d",
+          textColor: c.text,
           attributionLogo: false,
         },
-        grid: { vertLines: { visible: false }, horzLines: { color: "rgba(22,101,52,0.08)" } },
+        grid: { vertLines: { visible: false }, horzLines: { color: c.grid } },
         timeScale: { timeVisible: true, secondsVisible: false },
         rightPriceScale: { borderVisible: false },
       });
@@ -41,15 +51,15 @@ export function DuelCharts(props: { candles: CandlePoint[]; labelA: string; labe
         upColor: up,
         borderUpColor: up,
         wickUpColor: up,
-        downColor: "#dc2626",
-        borderDownColor: "#dc2626",
-        wickDownColor: "#dc2626",
+        downColor: c.down,
+        borderDownColor: c.down,
+        wickDownColor: c.down,
         priceFormat: { type: "price", precision: 0, minMove: 1 },
       });
       return [chart, series];
     };
-    const [chartA, seriesA] = make(refA.current, "#16a34a");
-    const [chartB, seriesB] = make(refB.current, "#14532d");
+    const [chartA, seriesA] = make(refA.current, palette().a);
+    const [chartB, seriesB] = make(refB.current, palette().b);
     seriesRef.current = { A: seriesA, B: seriesB };
     chartsRef.current = [chartA, chartB];
 
@@ -64,7 +74,35 @@ export function DuelCharts(props: { candles: CandlePoint[]; labelA: string; labe
       });
     link(chartA, chartB);
     link(chartB, chartA);
+
+    // Changement de thème (bouton clair/sombre) : on recolore les deux graphiques.
+    const recolor = () => {
+      const c = palette();
+      for (const [chart, series, up] of [
+        [chartA, seriesA, c.a],
+        [chartB, seriesB, c.b],
+      ] as const) {
+        chart.applyOptions({
+          layout: { textColor: c.text },
+          grid: { horzLines: { color: c.grid } },
+        });
+        series.applyOptions({
+          upColor: up,
+          borderUpColor: up,
+          wickUpColor: up,
+          downColor: c.down,
+          borderDownColor: c.down,
+          wickDownColor: c.down,
+        });
+      }
+    };
+    const observer = new MutationObserver(recolor);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
     return () => {
+      observer.disconnect();
       chartA.remove();
       chartB.remove();
       seriesRef.current = {};

@@ -11,7 +11,7 @@ export function DominationBar({
   const a = Math.min(100, Math.max(0, percentA));
   return (
     <div
-      className="relative h-3 w-full overflow-hidden rounded-full bg-side-b/80"
+      className="relative h-2.5 w-full overflow-hidden rounded-full bg-side-b/70"
       role="meter"
       aria-valuemin={0}
       aria-valuemax={100}

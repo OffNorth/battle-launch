@@ -87,7 +87,7 @@ export function SettingEditor(props: {
         <button
           type="button"
           onClick={() => void save()}
-          className="rounded-md bg-side-a px-3 py-1 text-xs font-semibold text-white"
+          className="rounded-md bg-side-a px-3 py-1 text-xs font-semibold text-on-side"
         >
           {props.saveLabel}
         </button>

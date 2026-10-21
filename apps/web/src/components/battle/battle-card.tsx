@@ -23,22 +23,26 @@ export function BattleCard({
   return (
     <Link
       href={`/${locale}/battle/${battle.id}`}
-      className="group flex flex-col gap-4 rounded-xl border border-border bg-card/60 p-4 transition hover:border-side-a/60 focus-visible:outline-2 focus-visible:outline-side-b"
+      className="group flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 transition hover:-translate-y-0.5 hover:border-side-a/50 hover:bg-card-raised focus-visible:outline-2 focus-visible:outline-side-a"
     >
       <div className="flex items-center justify-between gap-2 text-xs">
         <span className="truncate font-medium text-muted-foreground">{battle.theme}</span>
-        <span className="shrink-0 rounded-full border border-border px-2 py-0.5 uppercase tracking-wider">
+        <span className="shrink-0 rounded-full border border-border bg-card-raised px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider">
           {t.status[battle.status]}
         </span>
       </div>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
         <div className="min-w-0">
-          <p className="truncate font-bold text-side-a">{a?.name ?? "?"}</p>
+          <p className="truncate text-base font-semibold tracking-tight text-side-a">
+            {a?.name ?? "?"}
+          </p>
           <p className="font-mono text-xs text-muted-foreground">${a?.ticker ?? "—"}</p>
         </div>
         <span className="text-sm font-black text-muted-foreground">{t.vs}</span>
         <div className="min-w-0 text-right">
-          <p className="truncate font-bold text-side-b">{b?.name ?? "?"}</p>
+          <p className="truncate text-base font-semibold tracking-tight text-side-b">
+            {b?.name ?? "?"}
+          </p>
           <p className="font-mono text-xs text-muted-foreground">${b?.ticker ?? "—"}</p>
         </div>
       </div>

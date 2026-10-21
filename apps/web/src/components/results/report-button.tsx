@@ -65,7 +65,7 @@ export function ReportButton(props: {
       <button
         type="submit"
         disabled={state === "busy"}
-        className="w-fit rounded-md bg-side-b px-3 py-1.5 text-xs font-semibold text-white"
+        className="w-fit rounded-md bg-side-b px-3 py-1.5 text-xs font-semibold text-on-side"
       >
         {t.send}
       </button>

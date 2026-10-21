@@ -40,7 +40,7 @@ async function Winners({ dict, locale }: { dict: Dictionary; locale: Locale }) {
             className="flex flex-col gap-1 rounded-xl border border-border bg-card p-4 hover:border-side-a/60"
           >
             {r.isFeatured && (
-              <span className="w-fit rounded-full bg-side-a px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+              <span className="w-fit rounded-full bg-side-a px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-on-side">
                 {dict.ranks.featured}
               </span>
             )}

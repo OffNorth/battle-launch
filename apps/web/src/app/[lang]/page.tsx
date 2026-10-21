@@ -11,7 +11,12 @@ export default async function HomePage() {
   const locale = await getLocale();
   return (
     <>
-      <Hero text={dict.hero} docsHref={`/${locale}/docs`} />
+      <Hero
+        text={dict.hero}
+        docsHref={`/${locale}/docs`}
+        createHref={`/${locale}/create`}
+        createLabel={dict.nav.create}
+      />
       <div className="mx-auto w-full max-w-6xl px-4 pb-16">
         <Suspense
           fallback={
@@ -80,9 +85,9 @@ function Section(props: {
 }) {
   return (
     <section aria-label={props.title}>
-      <h2 className="mb-4 text-lg font-bold">{props.title}</h2>
+      <h2 className="display mb-4 text-2xl">{props.title}</h2>
       {props.battles.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+        <p className="rounded-2xl border border-dashed border-border bg-card/40 p-6 text-center text-sm text-muted-foreground">
           {props.empty}
         </p>
       ) : (

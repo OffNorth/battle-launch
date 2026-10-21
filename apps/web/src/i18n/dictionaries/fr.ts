@@ -17,6 +17,8 @@ export const fr: Dictionary = {
     admin: "Admin",
     language: "Langue",
     devnet: "Devnet",
+    themeLight: "Passer au thème clair",
+    themeDark: "Passer au thème sombre",
   },
   auth: {
     wallet: {

@@ -19,6 +19,8 @@ export const en = {
     admin: "Admin",
     language: "Language",
     devnet: "Devnet",
+    themeLight: "Switch to light theme",
+    themeDark: "Switch to dark theme",
   },
   auth: {
     wallet: {

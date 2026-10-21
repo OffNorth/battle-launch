@@ -63,7 +63,7 @@ export function ChatBox(props: {
         <button
           type="submit"
           disabled={busy}
-          className="rounded-md bg-side-a px-3 text-sm font-semibold text-white disabled:opacity-60"
+          className="rounded-md bg-side-a px-3 text-sm font-semibold text-on-side disabled:opacity-60"
         >
           {labels.send}
         </button>
