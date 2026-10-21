@@ -221,8 +221,10 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
   `NODE_ENV=production`.
 - **Serveur local** : après un déplacement de routes, effacer `apps/web/.next` (sinon `typecheck` lit d'anciens types).
 
-- **Connexion par wallet** : `signInWithWeb3` de Supabase reçoit `{ publicKey, signMessage }` (pas l'objet `useWallet()`
-  entier : les types de `signIn` divergent entre wallet-adapter et Supabase). Le profil est créé par un trigger sur
+- **Connexion par wallet** (`sign-in-button.tsx`) : si le wallet sait faire `signIn` (Phantom, Solflare, Backpack), c'est lui qui
+  écrit le message « Sign In With Solana » ; sinon on l'écrit nous-mêmes (`lib/siws.ts`, ordre du standard) et on passe
+  `{ message, signature }`. **Ne jamais laisser Supabase écrire le message** : il met « Version » avant « URI » et Phantom le
+  refuse (« invalid formatting », 23/10/2026). Un refus dans le wallet affiche une erreur, sans plantage. Le profil est créé par un trigger sur
   `auth.identities` (fournisseur `web3`) ; l'adresse vient d'`identity_data.address` ou de la fin de `provider_id`
   (`web3:solana:<adresse>`). Vérifié avec une identité factice dans une transaction annulée, **pas encore sur une vraie connexion**.
 - **Ne jamais lire `user_metadata` dans une policy** : l'utilisateur peut le modifier. Le wallet fait foi via `profiles`.

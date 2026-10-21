@@ -3,6 +3,8 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import { BaseWalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useEffect, useRef, useState } from "react";
+import type { SolanaWallet } from "@supabase/supabase-js";
+import { signInMessage } from "@/lib/siws";
 import { createClient } from "@/lib/supabase/client";
 
 export type SignInLabels = {
@@ -76,15 +78,51 @@ export function SignInButton({ labels }: { labels: SignInLabels }) {
   const signIn = async () => {
     setBusy(true);
     setError(null);
-    const { error: err } = await supabase().auth.signInWithWeb3({
-      chain: "solana",
+    try {
+      const { error: err } = await signInWithWallet();
+      if (err) setError(labels.failed);
+    } catch {
+      // Signature refusée dans le wallet, wallet fermé… : message clair, pas de plantage.
+      setError(labels.failed);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /**
+   * Deux chemins, tous deux au format standard « Sign In With Solana » :
+   * 1. le wallet sait faire « signIn » (Phantom, Solflare, Backpack…) : c'est LUI qui écrit le
+   *    message, dans le format qu'il attend ;
+   * 2. sinon, on écrit nous-mêmes le message (signInMessage) et le wallet le signe.
+   * On n'utilise plus le message écrit par Supabase : il met « Version » avant « URI », ordre que
+   * Phantom refuse (« invalid formatting », vu le 23/10/2026).
+   */
+  const signInWithWallet = async () => {
+    const auth = supabase().auth;
+    const signInFn = wallet.signIn;
+    if (signInFn) {
+      return auth.signInWithWeb3({
+        chain: "solana",
+        statement: labels.statement,
+        wallet: {
+          // Types de wallet-adapter et de Supabase presque identiques mais déclarés à part.
+          signIn: async (...inputs) =>
+            (await signInFn(inputs[0] as Parameters<typeof signInFn>[0])) as Awaited<
+              ReturnType<NonNullable<SolanaWallet["signIn"]>>
+            >,
+        },
+      });
+    }
+    if (!wallet.publicKey || !wallet.signMessage) throw new Error("wallet sans signature");
+    const message = signInMessage({
+      domain: window.location.host,
+      address: wallet.publicKey.toBase58(),
       statement: labels.statement,
-      // Seulement la clé publique et la signature de message : marche avec tous les wallets,
-      // et évite l'écart de types entre wallet-adapter et Supabase sur signIn.
-      wallet: { publicKey: wallet.publicKey, signMessage: wallet.signMessage },
+      uri: window.location.href,
+      issuedAt: new Date().toISOString(),
     });
-    if (err) setError(labels.failed);
-    setBusy(false);
+    const signature = await wallet.signMessage(new TextEncoder().encode(message));
+    return auth.signInWithWeb3({ chain: "solana", message, signature });
   };
 
   return (
