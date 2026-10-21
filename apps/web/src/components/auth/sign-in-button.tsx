@@ -61,11 +61,11 @@ export function SignInButton({ labels }: { labels: SignInLabels }) {
   if (sessionWallet) {
     return (
       <div className="flex items-center gap-2 text-sm">
-        <span className="font-mono text-cyan-300">{shortWallet(sessionWallet)}</span>
+        <span className="font-mono text-side-a">{shortWallet(sessionWallet)}</span>
         <button
           type="button"
           onClick={() => void supabase().auth.signOut()}
-          className="rounded-md border border-zinc-700 px-3 py-1.5 hover:border-zinc-500"
+          className="rounded-md border border-border px-3 py-1.5 hover:border-side-a"
         >
           {labels.signOut}
         </button>
@@ -93,7 +93,7 @@ export function SignInButton({ labels }: { labels: SignInLabels }) {
         type="button"
         onClick={() => void signIn()}
         disabled={busy}
-        className="rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-semibold text-white hover:bg-fuchsia-400 disabled:opacity-60"
+        className="rounded-md bg-side-a px-4 py-2 text-sm font-semibold text-white hover:bg-side-a/90 disabled:opacity-60"
       >
         {busy ? labels.checkWallet : labels.signIn}
       </button>

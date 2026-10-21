@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { lang } from "next/root-params";
+import { AnimatedBackground } from "@/components/layout/animated-background";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SolanaProvider } from "@/components/providers/solana-provider";
@@ -15,6 +16,9 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export async function generateStaticParams() {
   return LOCALES.map((l) => ({ lang: l }));
 }
+
+/** Couleur de la barre du navigateur sur mobile : blanc du thème. */
+export const viewport: Viewport = { themeColor: "#fbfefb" };
 
 export async function generateMetadata(): Promise<Metadata> {
   const dict = await getDictionary();
@@ -34,9 +38,10 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
   return (
     <html
       lang={locale}
-      className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
+        <AnimatedBackground />
         <SolanaProvider rpcUrl={solana.NEXT_PUBLIC_SOLANA_RPC_URL}>
           <SiteHeader dict={dict} locale={locale} cluster={solana.NEXT_PUBLIC_SOLANA_CLUSTER} />
           <main className="flex flex-1 flex-col">{children}</main>

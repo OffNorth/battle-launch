@@ -139,7 +139,8 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
       essayer une vraie connexion avec Phantom en devnet
 - [x] Étape 2 : `packages/shared/src/battle/` score, anti-triche, snapshot (26 tests) ; migration `20261020204614_regles_du_score`
       (poids en points de base, règles anti-triche figées par battle)
-- [x] Étape 3 : site de base — thème arène (toujours sombre, camp A fuchsia / camp B cyan), shadcn/ui, FR/EN sous `/fr` et
+- [x] Étape 3 : site de base — thème **vert et blanc** depuis le 21/10/2026 (fond blanc, camp A vert vif, camp B vert
+      très foncé ; variables dans `globals.css`), fond animé en CSS (`animated-background.tsx`), shadcn/ui, FR/EN sous `/fr` et
       `/en` (`src/i18n`, redirection selon la langue du navigateur dans `proxy.ts`), accueil (en direct / bientôt / résultats
       lus dans Supabase), `/docs` (risques, déroulement, formule, anti-triche, vérification, FAQ). Vérifié en local, mobile
       375 px sans défilement horizontal, console sans erreur
@@ -157,6 +158,13 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
 - [ ] Étape 9 : E2E battle complète, seed devnet, README final, checklist de mise en production
 
 ## 10. Pièges connus
+
+- **Thème** : l'utilisateur a remplacé le « néon sombre » du cahier des charges par un thème **vert et blanc** avec des
+  animations de fond (21/10/2026). Couleurs uniquement via les variables de `globals.css` (`--side-a`, `--side-b`, …).
+  Le fond animé est en CSS pur (transform/opacity), coupé si l'appareil demande moins d'animations ; le navigateur
+  intégré de Claude a ce réglage actif, donc les animations y paraissent immobiles (normal).
+- **Serveur local** : après une modification de `globals.css`, le serveur de dev ne recompile pas toujours la feuille ;
+  le redémarrer.
 
 - **Écritures sans clé secrète** (choix de l'utilisateur, 21/10/2026) : le site n'a PAS de `service_role`. Une route `/api/...`
   vérifie la session (`requireProfile`), valide avec le schéma Zod partagé, passe le filtre de contenu, puis appelle une

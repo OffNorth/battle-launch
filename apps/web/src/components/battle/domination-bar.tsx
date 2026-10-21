@@ -1,4 +1,4 @@
-/** Barre de domination : part du camp A (fuchsia) contre le camp B (cyan), en pourcentage. */
+/** Barre de domination : part du camp A (vert) contre le camp B (vert foncé), en pourcentage. */
 export function DominationBar({
   percentA,
   labelA,

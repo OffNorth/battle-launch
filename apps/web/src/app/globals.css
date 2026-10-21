@@ -51,64 +51,194 @@
 }
 
 /*
- * Le site est toujours en sombre (« arène ») : :root et .dark ont les mêmes valeurs.
- * Camp A = fuchsia, camp B = cyan. Contrastes vérifiés sur fond sombre (texte clair).
+ * Thème vert et blanc (choix de l'utilisateur, 21/10/2026) : fond blanc, vert en couleur
+ * principale. Camp A = vert vif, camp B = vert très foncé (« encre ») pour que les deux camps
+ * restent bien distincts sur fond blanc. Textes blancs sur les deux couleurs de camp : contraste
+ * supérieur à 4,5:1. Pour changer les couleurs, ne toucher qu'ici (variables).
  */
-:root,
-.dark {
-  --side-a: oklch(0.72 0.26 335);
-  --side-b: oklch(0.86 0.14 200);
-  --background: oklch(0.14 0.025 290);
-  --foreground: oklch(0.96 0.01 290);
-  --card: oklch(0.19 0.03 290);
-  --card-foreground: oklch(0.96 0.01 290);
-  --popover: oklch(0.19 0.03 290);
-  --popover-foreground: oklch(0.96 0.01 290);
-  --primary: oklch(0.72 0.26 335);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.25 0.03 290);
-  --secondary-foreground: oklch(0.96 0.01 290);
-  --muted: oklch(0.25 0.03 290);
-  --muted-foreground: oklch(0.74 0.03 290);
-  --accent: oklch(0.86 0.14 200);
-  --accent-foreground: oklch(0.16 0.03 290);
-  --destructive: oklch(0.7 0.19 22);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.86 0.14 200);
-  --chart-1: oklch(0.72 0.26 335);
-  --chart-2: oklch(0.86 0.14 200);
-  --chart-3: oklch(0.8 0.16 85);
-  --chart-4: oklch(0.7 0.17 150);
-  --chart-5: oklch(0.65 0.2 25);
+:root {
+  --side-a: oklch(0.56 0.16 150);
+  --side-b: oklch(0.27 0.05 160);
+  --background: oklch(0.995 0.004 150);
+  --foreground: oklch(0.24 0.04 160);
+  --card: oklch(1 0 0 / 82%);
+  --card-foreground: oklch(0.24 0.04 160);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.24 0.04 160);
+  --primary: oklch(0.56 0.16 150);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.96 0.025 150);
+  --secondary-foreground: oklch(0.27 0.05 160);
+  --muted: oklch(0.96 0.02 150);
+  --muted-foreground: oklch(0.47 0.03 160);
+  --accent: oklch(0.93 0.05 150);
+  --accent-foreground: oklch(0.27 0.05 160);
+  --destructive: oklch(0.55 0.2 27);
+  --border: oklch(0.9 0.03 150);
+  --input: oklch(0.88 0.03 150);
+  --ring: oklch(0.56 0.16 150);
+  --chart-1: oklch(0.56 0.16 150);
+  --chart-2: oklch(0.27 0.05 160);
+  --chart-3: oklch(0.72 0.15 135);
+  --chart-4: oklch(0.65 0.1 180);
+  --chart-5: oklch(0.55 0.2 27);
   --radius: 0.75rem;
-  --sidebar: oklch(0.19 0.03 290);
-  --sidebar-foreground: oklch(0.96 0.01 290);
-  --sidebar-primary: oklch(0.72 0.26 335);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.25 0.03 290);
-  --sidebar-accent-foreground: oklch(0.96 0.01 290);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.86 0.14 200);
-  color-scheme: dark;
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.24 0.04 160);
+  --sidebar-primary: oklch(0.56 0.16 150);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.96 0.025 150);
+  --sidebar-accent-foreground: oklch(0.27 0.05 160);
+  --sidebar-border: oklch(0.9 0.03 150);
+  --sidebar-ring: oklch(0.56 0.16 150);
+  color-scheme: light;
 }
 
-/* Halo de l'arène derrière le bandeau d'accueil. */
+/* Halo derrière le bandeau d'accueil. */
 .arena-glow {
   background:
     radial-gradient(
       40% 60% at 20% 30%,
-      color-mix(in oklch, var(--side-a) 28%, transparent),
+      color-mix(in oklch, var(--side-a) 18%, transparent),
       transparent 70%
     ),
     radial-gradient(
       40% 60% at 80% 30%,
-      color-mix(in oklch, var(--side-b) 22%, transparent),
+      color-mix(in oklch, var(--side-b) 10%, transparent),
       transparent 70%
     );
 }
 
-/* Bouton de wallet-adapter aux couleurs de l'arène, compact sur mobile. */
+/*
+ * ── Animations de fond ──────────────────────────────────────────────────────
+ * Une couche fixe derrière tout le site (components/layout/animated-background.tsx) :
+ * taches de vert qui dérivent, grille de points qui glisse, bulles qui montent.
+ * Seulement transform et opacity (rapide), et rien du tout si l'appareil demande moins
+ * d'animations.
+ */
+.bg-stage {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--background);
+}
+
+.bg-grid {
+  position: absolute;
+  inset: -64px;
+  background-image: radial-gradient(
+    color-mix(in oklch, var(--side-a) 30%, transparent) 1.2px,
+    transparent 1.4px
+  );
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 75%);
+  animation: bg-grid-drift 18s linear infinite;
+}
+
+.bg-blob {
+  position: absolute;
+  width: 46vmax;
+  height: 46vmax;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.75;
+  will-change: transform;
+}
+
+.bg-blob-1 {
+  top: -18vmax;
+  left: -12vmax;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--side-a) 55%, transparent),
+    transparent 65%
+  );
+  animation: bg-float-1 26s ease-in-out infinite alternate;
+}
+
+.bg-blob-2 {
+  right: -16vmax;
+  top: 10vmax;
+  background: radial-gradient(circle, oklch(0.85 0.12 140 / 55%), transparent 65%);
+  animation: bg-float-2 32s ease-in-out infinite alternate;
+}
+
+.bg-blob-3 {
+  bottom: -22vmax;
+  left: 22vw;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--side-b) 18%, transparent),
+    transparent 65%
+  );
+  animation: bg-float-3 38s ease-in-out infinite alternate;
+}
+
+.bg-bubble {
+  position: absolute;
+  bottom: -40px;
+  border-radius: 9999px;
+  border: 1.5px solid color-mix(in oklch, var(--side-a) 35%, transparent);
+  background: color-mix(in oklch, var(--side-a) 8%, transparent);
+  animation: bg-rise linear infinite;
+  opacity: 0;
+}
+
+@keyframes bg-grid-drift {
+  to {
+    transform: translate3d(32px, 32px, 0);
+  }
+}
+
+@keyframes bg-float-1 {
+  to {
+    transform: translate3d(14vmax, 10vmax, 0) scale(1.15);
+  }
+}
+
+@keyframes bg-float-2 {
+  to {
+    transform: translate3d(-12vmax, 14vmax, 0) scale(0.9);
+  }
+}
+
+@keyframes bg-float-3 {
+  to {
+    transform: translate3d(10vmax, -12vmax, 0) scale(1.1);
+  }
+}
+
+@keyframes bg-rise {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(var(--drift, 20px), -110vh, 0);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-grid,
+  .bg-blob,
+  .bg-bubble {
+    animation: none;
+  }
+  .bg-bubble {
+    display: none;
+  }
+}
+
+/* Bouton de wallet-adapter aux couleurs du site, compact sur mobile. */
 .wallet-adapter-button.wallet-adapter-button-trigger {
   height: 2.25rem;
   padding: 0 0.875rem;
