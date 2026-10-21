@@ -12,6 +12,8 @@ const PublicEnv = z.object({
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
   NEXT_PUBLIC_SOLANA_CLUSTER: SolanaCluster.default("devnet"),
   NEXT_PUBLIC_SOLANA_RPC_URL: z.url().default("https://api.devnet.solana.com"),
+  /** Adresse publique du site : sert à l'adresse des métadonnées des tokens (inscrite sur la chaîne). */
+  NEXT_PUBLIC_APP_URL: z.url().default("http://localhost:3000"),
 });
 export type PublicEnv = z.infer<typeof PublicEnv>;
 
@@ -23,6 +25,7 @@ export function publicEnv(): PublicEnv {
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     NEXT_PUBLIC_SOLANA_CLUSTER: process.env.NEXT_PUBLIC_SOLANA_CLUSTER,
     NEXT_PUBLIC_SOLANA_RPC_URL: process.env.NEXT_PUBLIC_SOLANA_RPC_URL,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   });
   return cached;
 }
@@ -30,10 +33,15 @@ export function publicEnv(): PublicEnv {
 /** Réglages Solana publics seuls (ont une valeur par défaut : utilisables pendant le build). */
 export function solanaPublicEnv() {
   return parseEnv(
-    PublicEnv.pick({ NEXT_PUBLIC_SOLANA_CLUSTER: true, NEXT_PUBLIC_SOLANA_RPC_URL: true }),
+    PublicEnv.pick({
+      NEXT_PUBLIC_SOLANA_CLUSTER: true,
+      NEXT_PUBLIC_SOLANA_RPC_URL: true,
+      NEXT_PUBLIC_APP_URL: true,
+    }),
     {
       NEXT_PUBLIC_SOLANA_CLUSTER: process.env.NEXT_PUBLIC_SOLANA_CLUSTER,
       NEXT_PUBLIC_SOLANA_RPC_URL: process.env.NEXT_PUBLIC_SOLANA_RPC_URL,
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     },
   );
 }

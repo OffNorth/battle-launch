@@ -190,6 +190,7 @@ export type Database = {
           cluster: string
           created_at: string
           created_by: string
+          curve_params: Json | null
           duration_minutes: number
           ends_at: string | null
           finished_at: string | null
@@ -216,6 +217,7 @@ export type Database = {
           cluster?: string
           created_at?: string
           created_by: string
+          curve_params?: Json | null
           duration_minutes: number
           ends_at?: string | null
           finished_at?: string | null
@@ -242,6 +244,7 @@ export type Database = {
           cluster?: string
           created_at?: string
           created_by?: string
+          curve_params?: Json | null
           duration_minutes?: number
           ends_at?: string | null
           finished_at?: string | null
@@ -356,6 +359,8 @@ export type Database = {
       }
       launch_txs: {
         Row: {
+          buy_nonce_account: string | null
+          buy_tx: string | null
           created_at: string
           error: string | null
           nonce_account: string
@@ -365,6 +370,8 @@ export type Database = {
           submitted_at: string | null
         }
         Insert: {
+          buy_nonce_account?: string | null
+          buy_tx?: string | null
           created_at?: string
           error?: string | null
           nonce_account: string
@@ -374,6 +381,8 @@ export type Database = {
           submitted_at?: string | null
         }
         Update: {
+          buy_nonce_account?: string | null
+          buy_tx?: string | null
           created_at?: string
           error?: string | null
           nonce_account?: string
@@ -692,6 +701,24 @@ export type Database = {
           },
         ]
       }
+      wallet_funders: {
+        Row: {
+          checked_at: string
+          funder: string | null
+          wallet: string
+        }
+        Insert: {
+          checked_at?: string
+          funder?: string | null
+          wallet: string
+        }
+        Update: {
+          checked_at?: string
+          funder?: string | null
+          wallet?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -726,6 +753,18 @@ export type Database = {
       }
       set_battle_watch: {
         Args: { p_battle: string; p_watch: boolean }
+        Returns: undefined
+      }
+      submit_launch_tx: {
+        Args: {
+          p_battle: string
+          p_buy_nonce: string
+          p_buy_tx: string
+          p_create_nonce: string
+          p_create_tx: string
+          p_mint: string
+          p_side: Database["public"]["Enums"]["side_letter"]
+        }
         Returns: undefined
       }
     }

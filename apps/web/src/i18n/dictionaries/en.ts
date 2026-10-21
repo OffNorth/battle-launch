@@ -140,6 +140,20 @@ export const en = {
     nextStep:
       "At the end of the lobby, both creators sign the launch of their token in their wallet.",
   },
+  launch: {
+    explain:
+      "Sign your launch now: your token is created with the initial buy at the exact launch time, even if you close this page.",
+    prepare: "Prepare my launch",
+    stepNonces: "1/3 Check your wallet (launch accounts)…",
+    stepSign: "2/3 Check your wallet (sign the launch)…",
+    stepSubmit: "3/3 Saving…",
+    ready: "Your launch is ready. It will be sent automatically at launch time.",
+    sideReady: "ready",
+    sidePending: "to sign",
+    cost: "Costs: the initial buy, network fees and about 0.003 SOL per side for the launch accounts (devnet: test SOL).",
+    walletNeeded: "Connect the wallet you signed in with.",
+    failed: "The launch could not be prepared. Nothing was sent; you can try again.",
+  },
   errors: {
     not_signed_in: "Please sign in with your wallet first.",
     banned: "This wallet is not allowed to do this.",
@@ -159,6 +173,8 @@ export const en = {
     auto_ai_refused: "The AI declined this idea. Try another one.",
     auto_ai_failed: "The AI did not answer. Try again.",
     server_not_configured: "The server is not fully configured yet.",
+    invalid_launch_tx: "The signed launch does not match this battle.",
+    launch_tx_failed: "The launch could not be saved.",
     generic: "Something went wrong. Please try again.",
   } as Record<string, string>,
   footer: {

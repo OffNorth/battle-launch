@@ -120,3 +120,11 @@ export function lobbySchedule(
 ): { lobbyOpensAt: Date; launchAt: Date } {
   return { lobbyOpensAt: now, launchAt: new Date(now.getTime() + lobbyMinutes * 60_000) };
 }
+
+/**
+ * Adresse des métadonnées d'un camp, inscrite dans la création du token. Le navigateur du
+ * créateur et le worker la calculent de la même façon (le worker refuse une autre adresse).
+ */
+export function metadataUri(appUrl: string, sideId: string): string {
+  return `${appUrl.replace(/\/+$/, "")}/api/metadata/${sideId}`;
+}

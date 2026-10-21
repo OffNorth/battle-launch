@@ -138,6 +138,20 @@ export const fr: Dictionary = {
     nextStep:
       "À la fin du lobby, les deux créateurs signent le lancement de leur token dans leur wallet.",
   },
+  launch: {
+    explain:
+      "Signe ton lancement maintenant : ton token sera créé avec l'achat initial à l'heure exacte du lancement, même si tu fermes la page.",
+    prepare: "Préparer mon lancement",
+    stepNonces: "1/3 Regarde ton wallet (comptes de lancement)…",
+    stepSign: "2/3 Regarde ton wallet (signature du lancement)…",
+    stepSubmit: "3/3 Enregistrement…",
+    ready: "Ton lancement est prêt. Il partira tout seul à l'heure du lancement.",
+    sideReady: "prêt",
+    sidePending: "à signer",
+    cost: "Coût : l'achat initial, les frais du réseau et environ 0,003 SOL par camp pour les comptes de lancement (devnet : SOL de test).",
+    walletNeeded: "Connecte le wallet avec lequel tu t'es connecté.",
+    failed: "Le lancement n'a pas pu être préparé. Rien n'a été envoyé ; tu peux réessayer.",
+  },
   errors: {
     not_signed_in: "Connecte-toi d'abord avec ton wallet.",
     banned: "Ce wallet n'a pas le droit de faire cela.",
@@ -158,6 +172,8 @@ export const fr: Dictionary = {
     auto_ai_refused: "L'IA a refusé cette idée. Essaie-en une autre.",
     auto_ai_failed: "L'IA n'a pas répondu. Réessaie.",
     server_not_configured: "Le serveur n'est pas encore entièrement configuré.",
+    invalid_launch_tx: "Le lancement signé ne correspond pas à cette battle.",
+    launch_tx_failed: "Le lancement n'a pas pu être enregistré.",
     generic: "Une erreur est survenue. Réessaie.",
   },
   footer: {

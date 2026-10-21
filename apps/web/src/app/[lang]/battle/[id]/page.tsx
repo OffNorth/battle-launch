@@ -6,11 +6,13 @@ import { z } from "zod";
 import { Countdown } from "@/components/battle/countdown";
 import { DominationBar } from "@/components/battle/domination-bar";
 import { BattleLiveRefresh } from "@/components/lobby/battle-live-refresh";
+import { CreatorLaunchPanel } from "@/components/lobby/creator-launch-panel";
 import { LobbyActions } from "@/components/lobby/lobby-actions";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries/en";
 import { getDictionary, getLocale } from "@/i18n/get-dictionary";
 import { getBattle } from "@/lib/battles";
+import { solanaPublicEnv } from "@/lib/env";
 import { scorePercent } from "@/lib/format";
 
 const Id = z.uuid();
@@ -123,6 +125,25 @@ async function BattleView({
       {isPreLaunch && (
         <section className="mx-auto mt-8 max-w-2xl">
           <p className="mb-4 text-center text-xs text-muted-foreground">{dict.lobby.nextStep}</p>
+          {battle.status === "lobby" && (
+            <div className="mb-6">
+              <CreatorLaunchPanel
+                battleId={battle.id}
+                sides={battle.sideDetails.map((s) => ({
+                  id: s.id,
+                  side: s.side,
+                  name: s.name,
+                  ticker: s.ticker,
+                  prepared: s.mint !== null,
+                  creatorId: s.creatorId,
+                }))}
+                initialBuyLamports={battle.initialBuyLamports}
+                appUrl={solanaPublicEnv().NEXT_PUBLIC_APP_URL}
+                labels={dict.launch}
+                errors={dict.errors}
+              />
+            </div>
+          )}
           <LobbyActions
             battleId={battle.id}
             status={battle.status}

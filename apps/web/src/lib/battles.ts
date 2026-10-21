@@ -122,6 +122,7 @@ export type BattleDetail = BattleSummary & {
   watchersCount: number;
   cancelReason: string | null;
   sideDetails: {
+    id: string;
     side: Enums<"side_letter">;
     name: string;
     ticker: string;
@@ -129,6 +130,7 @@ export type BattleDetail = BattleSummary & {
     imageUrl: string | null;
     mint: string | null;
     creatorId: string | null;
+    creatorWallet: string | null;
   }[];
 };
 
@@ -139,7 +141,7 @@ export async function getBattle(id: string): Promise<BattleDetail | null> {
     .from("battles")
     .select(
       `${SELECT}, mode, created_by, lobby_minutes, score_mode, initial_buy_lamports, watchers_count, cancel_reason,
-       details:battle_sides ( side, name, ticker, description, image_url, mint, creator_id )`,
+       details:battle_sides ( id, side, name, ticker, description, image_url, mint, creator_id, creator:profiles!battle_sides_creator_id_fkey ( wallet ) )`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -156,6 +158,7 @@ export async function getBattle(id: string): Promise<BattleDetail | null> {
     cancelReason: data.cancel_reason,
     sideDetails: data.details
       .map((d) => ({
+        id: d.id,
         side: d.side,
         name: d.name,
         ticker: d.ticker,
@@ -163,6 +166,7 @@ export async function getBattle(id: string): Promise<BattleDetail | null> {
         imageUrl: d.image_url,
         mint: d.mint,
         creatorId: d.creator_id,
+        creatorWallet: d.creator?.wallet ?? null,
       }))
       .sort((a, b) => (a.side < b.side ? -1 : 1)),
   };
