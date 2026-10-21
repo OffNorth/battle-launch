@@ -183,7 +183,7 @@
 /*
  * ── Animations de fond ──────────────────────────────────────────────────────
  * Une couche fixe derrière tout le site (components/layout/animated-background.tsx) :
- * taches de vert qui dérivent, grille de points qui glisse, bulles qui montent.
+ * taches de vert qui dérivent, bulles qui montent.
  * Seulement transform et opacity (rapide), et rien du tout si l'appareil demande moins
  * d'animations.
  */
@@ -194,18 +194,6 @@
   overflow: hidden;
   pointer-events: none;
   background: var(--background);
-}
-
-.bg-grid {
-  position: absolute;
-  inset: -64px;
-  background-image: radial-gradient(
-    color-mix(in oklch, var(--side-a) 30%, transparent) 1.2px,
-    transparent 1.4px
-  );
-  background-size: 32px 32px;
-  mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 75%);
-  animation: bg-grid-drift 18s linear infinite;
 }
 
 .bg-blob {
@@ -266,12 +254,6 @@
   --blob-opacity: 0.75;
 }
 
-@keyframes bg-grid-drift {
-  to {
-    transform: translate3d(32px, 32px, 0);
-  }
-}
-
 @keyframes bg-float-1 {
   to {
     transform: translate3d(14vmax, 10vmax, 0) scale(1.15);
@@ -308,7 +290,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bg-grid,
   .bg-blob,
   .bg-bubble {
     animation: none;

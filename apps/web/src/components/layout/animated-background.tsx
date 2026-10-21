@@ -1,6 +1,6 @@
 /**
  * Fond animé du site (styles dans globals.css, section « Animations de fond ») : taches de vert
- * qui dérivent, grille de points qui glisse, bulles qui montent. Pur CSS, aucun script :
+ * qui dérivent, bulles qui montent. Pur CSS, aucun script :
  * rendu au serveur, rien à hydrater. Les bulles sont fixes (pas de hasard) pour que le rendu
  * serveur et le navigateur soient identiques.
  */
@@ -22,7 +22,6 @@ export function AnimatedBackground() {
       <div className="bg-blob bg-blob-1" />
       <div className="bg-blob bg-blob-2" />
       <div className="bg-blob bg-blob-3" />
-      <div className="bg-grid" />
       {BUBBLES.map((b) => (
         <span
           key={b.left}
