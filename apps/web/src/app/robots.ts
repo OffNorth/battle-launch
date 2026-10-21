@@ -5,7 +5,7 @@ import { solanaPublicEnv } from "@/lib/env";
 export default function robots(): MetadataRoute.Robots {
   const base = solanaPublicEnv().NEXT_PUBLIC_APP_URL.replace(/\/+$/, "");
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/en/admin", "/fr/admin"] },
+    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/en/admin"] },
     sitemap: `${base}/sitemap.xml`,
   };
 }

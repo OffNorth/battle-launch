@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 const Request = z.object({
   /** Piste de thème facultative (« animaux », « nourriture »…). */
   hint: z.string().trim().max(60).optional().default(""),
-  locale: z.enum(["en", "fr"]).default("en"),
+  locale: z.enum(["en"]).default("en"),
 });
 
 // Schéma de sortie imposé au modèle (sortie structurée). Les limites fines sont revérifiées
@@ -54,7 +54,7 @@ export async function POST(request: globalThis.Request) {
     const hint = moderateText(input.hint);
     if (!hint.ok) throw new ApiFailure(apiError(422, "content_refused", { reasons: hint.reasons }));
 
-    const language = input.locale === "fr" ? "French" : "English";
+    const language = "English";
     const client = new Anthropic({ apiKey, timeout: 60_000, maxRetries: 1 });
 
     let response;

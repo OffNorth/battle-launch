@@ -68,7 +68,7 @@ test("pages publiques : règles, classement, Hall of Fame, mobile sans défileme
 }) => {
   const errors = watchConsole(page);
   await page.setViewportSize({ width: 375, height: 812 });
-  for (const path of ["/fr/docs", "/fr/leaderboard", "/fr/hall-of-fame", "/fr/create"]) {
+  for (const path of ["/en/docs", "/en/leaderboard", "/en/hall-of-fame", "/en/create"]) {
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     const overflow = await page.evaluate(

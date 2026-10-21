@@ -17,7 +17,6 @@ export const en = {
     hallOfFame: "Hall of Fame",
     profile: "My profile",
     admin: "Admin",
-    language: "Language",
     devnet: "Devnet",
     themeLight: "Switch to light theme",
     themeDark: "Switch to dark theme",

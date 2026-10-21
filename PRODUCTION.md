@@ -34,7 +34,7 @@ Chaque case se coche avec une preuve (capture, journal, lien), pas de mémoire.
 - [ ] Aucun secret dans Git (`git log -p | grep` sur les préfixes de clés connus) ; `.env*` ignorés.
 - [ ] `npm audit` relu ; rien d'atteignable dans le site livré.
 - [ ] Lighthouse mobile (accueil, battle) : accessibilité ≥ 90, aucune erreur console.
-- [ ] Textes : avertissement des risques visible, aucune promesse de gain, FR et EN complets.
+- [ ] Textes : avertissement des risques visible, aucune promesse de gain, textes tous en anglais.
 - [ ] Mentions légales, conditions d'utilisation et politique de confidentialité rédigées et relues (hors code).
 
 ### Exploitation

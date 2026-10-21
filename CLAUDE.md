@@ -94,7 +94,7 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
   Les flottants ne servent qu'à l'affichage.
 - Logique de jeu (score, anti-triche, snapshot) **uniquement dans `packages/shared`**, en fonctions pures testées : le site,
   le worker et la page de vérification utilisent le même code.
-- Commentaires et docs du dépôt **en français** ; textes visibles du site en FR et EN (i18n).
+- Commentaires et docs du dépôt **en français** ; textes visibles du site en anglais (i18n, voir §10).
 - Un test par changement de logique. Pas de mock ni de TODO dans le code final, sauf le **mode démo devnet** activé par variable
   d'environnement.
 - `git add <fichiers précis>`, jamais `git add .` à l'aveugle. Messages de commit courts en français qui disent le pourquoi.
@@ -139,7 +139,7 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
       essayer une vraie connexion avec Phantom en devnet
 - [x] Étape 2 : `packages/shared/src/battle/` score, anti-triche, snapshot (26 tests) ; migration `20261020204614_regles_du_score`
       (poids en points de base, règles anti-triche figées par battle)
-- [x] Étape 3 : site de base — thèmes sombre (défaut) et vert et blanc, bouton de bascule (voir §10 ; variables dans `globals.css`), fond animé en CSS (`animated-background.tsx`), shadcn/ui, FR/EN sous `/fr` et
+- [x] Étape 3 : site de base — thèmes sombre (défaut) et vert et blanc, bouton de bascule (voir §10 ; variables dans `globals.css`), fond animé en CSS (`animated-background.tsx`), shadcn/ui, anglais seulement sous
       `/en` (`src/i18n`, redirection selon la langue du navigateur dans `proxy.ts`), accueil (en direct / bientôt / résultats
       lus dans Supabase), `/docs` (risques, déroulement, formule, anti-triche, vérification, FAQ). Vérifié en local, mobile
       375 px sans défilement horizontal, console sans erreur
@@ -204,8 +204,9 @@ supabase/migrations/ migrations SQL versionnées (copie exacte de ce qui est app
   build échoue sur les pages comme `/battle/[id]`.
 - **Shell (outil Bash)** : les longs scripts heredoc avec apostrophes échouent parfois ; écrire les fichiers avec l'outil Write.
 
-- **Textes du site** : `src/i18n/dictionaries/en.ts` (référence) et `fr.ts` (mêmes clés, vérifié par TypeScript). La langue
-  vient du segment `[lang]` via `next/root-params` (`getDictionary()`, `getLocale()`).
+- **Textes du site** : **anglais seulement** (23/10/2026). `src/i18n/dictionaries/en.ts` ; le segment `[lang]` est gardé (`/en/...`)
+  via `next/root-params` (`getDictionary()`, `getLocale()`), et `proxy.ts` redirige `/docs` et les anciennes adresses `/fr/...` vers
+  `/en/...`. Ajouter une langue : voir le commentaire de `i18n/config.ts`. Les journaux du worker restent en français (lus par l'exploitant).
 - **Framer Motion** : mêmes `initial`/`animate` au serveur et au navigateur, `MotionConfig reducedMotion="user"` ; sinon erreur
   d'hydratation et éléments restés invisibles quand le système demande moins d'animations.
 - **Worker Railway** : `NPM_CONFIG_INCLUDE=dev` est posé pour que `tsup` (outil de dev) soit installé au build malgré

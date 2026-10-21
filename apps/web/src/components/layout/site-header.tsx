@@ -1,10 +1,8 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import { SignInButton } from "@/components/auth/sign-in-button";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries/en";
 import { AccountLinks } from "./account-links";
-import { LangSwitcher, LangSwitcherStatic } from "./lang-switcher";
 import { ThemeToggle } from "./theme-toggle";
 
 export function SiteHeader({
@@ -52,11 +50,6 @@ export function SiteHeader({
           </nav>
         </div>
         <div className="flex shrink-0 items-center gap-3">
-          <div className="hidden md:block">
-            <Suspense fallback={<LangSwitcherStatic current={locale} label={dict.nav.language} />}>
-              <LangSwitcher current={locale} label={dict.nav.language} />
-            </Suspense>
-          </div>
           <ThemeToggle labelLight={dict.nav.themeLight} labelDark={dict.nav.themeDark} />
           <SignInButton labels={dict.auth} />
         </div>
@@ -68,9 +61,6 @@ export function SiteHeader({
           <Link href={`/${locale}/leaderboard`}>{dict.nav.leaderboard}</Link>
           <Link href={`/${locale}/docs`}>{dict.nav.docs}</Link>
         </nav>
-        <Suspense fallback={<LangSwitcherStatic current={locale} label={dict.nav.language} />}>
-          <LangSwitcher current={locale} label={dict.nav.language} />
-        </Suspense>
       </div>
     </header>
   );

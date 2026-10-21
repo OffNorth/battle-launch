@@ -2,9 +2,8 @@ import { notFound } from "next/navigation";
 import { lang } from "next/root-params";
 import { hasLocale, type Locale } from "./config";
 import { en } from "./dictionaries/en";
-import { fr } from "./dictionaries/fr";
 
-const dictionaries = { en, fr };
+const dictionaries = { en };
 
 /** Langue de la page en cours (segment /[lang]), lue sans la passer de composant en composant. */
 export async function getLocale(): Promise<Locale> {

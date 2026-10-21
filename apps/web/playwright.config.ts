@@ -16,7 +16,7 @@ export default defineConfig({
   use: {
     baseURL,
     channel: process.env.E2E_CHANNEL ?? "msedge",
-    locale: "fr-FR",
+    locale: "en-US",
     trace: "retain-on-failure",
   },
   webServer: process.env.E2E_BASE_URL
